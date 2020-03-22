@@ -28,15 +28,16 @@
 #include <KPluginLoader>
 #include <KAboutData>
 #include <KActionCollection>
-#include <KAction>
+#include <QAction>
 #include <KTextEditor/Document>
+#include <klocalizedstring.h>
 
 #include <interfaces/iuicontroller.h>
 #include <interfaces/icore.h>
 #include <interfaces/idocumentcontroller.h>
 
 #include "resulttablewidget.h"
-#include "version.h"
+//#include "version.h"
 
 K_PLUGIN_FACTORY(KDevSqlSupportFactory, registerPlugin<Sql::LanguageSupport>();)
 K_EXPORT_PLUGIN(KDevSqlSupportFactory(KAboutData("kdevsqlsupport","kdevsql", ki18n("SQL Support"), VERSION_STR, ki18n("Support for SQL Language"), KAboutData::License_GPL)
@@ -47,13 +48,7 @@ namespace Sql
 {
 LanguageSupport* LanguageSupport::m_self = 0;
 
-#if KDE_VERSION > KDE_MAKE_VERSION(4, 3, 80)
-int debugArea() { static int s_area = KDebug::registerArea("kdevsqlsupport"); return s_area; }
-#else
-int debugArea() { return 1; }
-#endif
-
-
+// FIXME //int debugArea() { static int s_area = KDebug::registerArea("kdevsqlsupport"); return s_area; }
 
 template<class T>
 class ToolFactory : public KDevelop::IToolViewFactory
@@ -63,17 +58,17 @@ public:
   : m_id(id), m_defaultArea(defaultArea)
   {}
 
-  virtual QWidget* create(QWidget *parent = 0)
+  virtual QWidget* create(QWidget *parent = 0) override
   {
     return new T(parent);
   }
 
-  virtual QString id() const
+  virtual QString id() const override
   {
     return m_id;
   }
 
-  virtual Qt::DockWidgetArea defaultPosition()
+  virtual Qt::DockWidgetArea defaultPosition() override
   {
     return m_defaultArea;
   }
@@ -85,11 +80,9 @@ private:
 
 
 LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
-    : KDevelop::IPlugin(KDevSqlSupportFactory::componentData(), parent),
+    : KDevelop::IPlugin("SQL Support", parent),
       KDevelop::ILanguageSupport()
 {
-    KDEV_USE_EXTENSION_INTERFACE(KDevelop::ILanguageSupport)
-
     setXMLFile("kdevsqlui.rc");
 
     m_self = this;
@@ -99,7 +92,7 @@ LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
 
     KActionCollection* ac = actionCollection();
 
-    KAction* action = new KAction(KIcon("system-run"), i18n("Run SQL"), this);
+    QAction * action = new QAction(QIcon::fromTheme("system-run"), "Run SQL", this); // TODO: Localize "Run SQL"
     action->setShortcut(Qt::CTRL + Qt::Key_E);
     connect(action, SIGNAL(triggered(bool)), SLOT(runSql()));
     ac->addAction("run_sql", action);
@@ -117,7 +110,7 @@ LanguageSupport *LanguageSupport::self()
 
 void LanguageSupport::runSql()
 {
-    QWidget* w = core()->uiController()->findToolView(i18n("SQL Query"), m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
+    QWidget* w = core()->uiController()->findToolView("SQL Query", m_resultTableFactory, KDevelop::IUiController::CreateAndRaise); // TODO: Localize "SQL Query"
     Q_ASSERT(w);
     ResultTableWidget* resTable = dynamic_cast<ResultTableWidget*>(w);
     Q_ASSERT(resTable);
@@ -132,5 +125,6 @@ void LanguageSupport::runSql()
 }
 
 }
+
 
 #include "sqllanguagesupport.moc"

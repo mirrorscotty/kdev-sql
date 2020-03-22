@@ -33,7 +33,7 @@ public:
     QueryWorker(QObject *parent = 0);
 
 protected:
-    virtual void run();
+    virtual void run() override;
 
 public Q_SLOTS:
     void execute( const QString& query );
@@ -48,4 +48,5 @@ private:
 
 }
 
+#include "queryworker.moc"
 #endif // QUERYWORKER_H

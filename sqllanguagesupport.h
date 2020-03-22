@@ -19,8 +19,8 @@
 #ifndef KDEVSQLLANGUAGESUPPORT_H
 #define KDEVSQLLANGUAGESUPPORT_H
 
-#include <interfaces/iplugin.h>
-#include <language/interfaces/ilanguagesupport.h>
+#include <kdevplatform/interfaces/iplugin.h>
+#include <kdevplatform/language/interfaces/ilanguagesupport.h>
 
 namespace Sql
 {
@@ -38,9 +38,9 @@ public:
     explicit LanguageSupport(QObject *parent, const QVariantList& args = QVariantList());
 
     /*Name Of the Language*/
-    QString name() const;
+    QString name() const override;
 
-    virtual KDevelop::ParseJob* createParseJob(const KDevelop::IndexedString&) { return 0; }
+    virtual KDevelop::ParseJob* createParseJob(const KDevelop::IndexedString&) override { return 0; }
 
     static LanguageSupport* self();
 
@@ -55,4 +55,3 @@ private:
 }
 
 #endif
-

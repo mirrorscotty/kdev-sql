@@ -21,7 +21,7 @@
 #include <QMetaType>
 #include <QTime>
 #include <QSqlError>
-#include <KDebug>
+#include <QDebug>
 
 namespace Sql {
 
@@ -32,13 +32,13 @@ QueryWorker::QueryWorker(QObject *parent)
 
 void QueryWorker::run()
 {
-    kDebug() << QThread::currentThread();
+    qDebug() << QThread::currentThread();
     exec();
 }
 
 void QueryWorker::execute(const QString& query)
 {
-    kDebug() << QThread::currentThread();
+    qDebug() << QThread::currentThread();
     QSqlQuery sql( query, m_db );
     QTime t;
     t.start();

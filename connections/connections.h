@@ -41,8 +41,8 @@ public:
     Connections( QWidget *parent, const QVariantList &args = QVariantList() );
     virtual ~Connections();
 
-    void save();
-    void load();
+    void save() override;
+    void load() override;
 
 private slots:
     void currentRowChanged(const QModelIndex& index);

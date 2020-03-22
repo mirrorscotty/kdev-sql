@@ -22,10 +22,9 @@
 
 #include <KConfigGroup>
 #include <KLocalizedString>
-#include <KDebug>
+#include <QDebug>
 
 #include <interfaces/iproject.h>
-#include <KGlobal>
 
 namespace Sql
 {
@@ -70,7 +69,7 @@ void ConnectionsModel::revert()
     m_connections.clear();
     KConfigGroup group = project()->projectConfiguration()->group("DatabaseConnections");
     int count = group.readEntry("Count", 0);
-    kDebug() << count;
+    qDebug() << count;
     for (int i=0; i < count; ++i) {
         Connection c;
         KConfigGroup g = group.group(QString("Connection %1").arg(i));
@@ -87,7 +86,7 @@ void ConnectionsModel::revert()
 bool ConnectionsModel::submit()
 {
     KConfigGroup group = project()->projectConfiguration()->group("DatabaseConnections");
-    kDebug() << m_connections.count();
+    qDebug() << m_connections.count();
     group.writeEntry("Count", m_connections.count());
     for (int i=0; i < m_connections.count(); ++i) {
         Connection c = m_connections.at(i);

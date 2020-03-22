@@ -23,11 +23,10 @@
 #include <QTextDocument>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <KAboutData>
 
 #include <kpluginfactory.h>
 #include <kpluginloader.h>
-#include <kurl.h>
-#include <kdebug.h>
 
 #include <interfaces/icore.h>
 #include <interfaces/iplugincontroller.h>
@@ -36,6 +35,8 @@
 
 #include "ui_connections.h"
 #include "connectionsmodel.h"
+#include <klocalizedstring.h>
+#include <util/path.h>
 
 using namespace Sql;
 
@@ -43,11 +44,11 @@ K_PLUGIN_FACTORY(ConnectionsFactory, registerPlugin<Connections>(); )
 K_EXPORT_PLUGIN(ConnectionsFactory("kcm_kdev_sqlconnections"))
 
 Connections::Connections( QWidget *parent, const QVariantList &args )
-    : KCModule( ConnectionsFactory::componentData(), parent, args )
+    : KCModule(parent, args )
 {
     KDevelop::IProject* project = 0;
     Q_FOREACH (KDevelop::IProject* p, KDevelop::ICore::self()->projectController()->projects()) {
-        if (p->projectFileUrl() == args.at(1).toString()) {
+        if (p->projectFile().toLocalFile() == args.at(1).toString()) {
             project = p;
             break;
         }

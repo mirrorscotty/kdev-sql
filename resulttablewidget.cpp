@@ -25,10 +25,11 @@
 #include <QSqlQuery>
 #include <QTimer>
 
-#include <KDebug>
+#include <QDebug>
 #include <KComponentData>
 #include "kcomponentdata.h"
 #include <KSettings/Dispatcher>
+#include <klocalizedstring.h>
 
 #include <interfaces/icore.h>
 #include <interfaces/iprojectcontroller.h>
@@ -55,10 +56,10 @@ public:
         foreach (KDevelop::IProject *p, KDevelop::ICore::self()->projectController()->projects())
             projectOpened(p);
 
-        KSettings::Dispatcher::registerComponent(KComponentData("kdevplatformproject"), this, "reloadModels");
+        KSettings::Dispatcher::registerComponent("kdevplatformproject", this, "reloadModels");
     }
 
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const
+    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
         if (parent.isValid()) return 0;
         int ret = 0;
@@ -68,7 +69,7 @@ public:
         return ret;
     }
 
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const
+    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override
     {
         if (index.parent().isValid()) return QVariant();
         if (index.column() > 0) return QVariant();
@@ -145,7 +146,7 @@ ResultTableWidget::ResultTableWidget(QWidget* parent)
     connect(m_connectionsModel, SIGNAL(modelReset()), SLOT(connectionChanged()));
     connect(m_connectionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(connectionChanged()));
 
-    setWindowIcon(KIcon("server-database"));
+    setWindowIcon(QIcon::fromTheme("server-database"));
 }
 
 ResultTableWidget::~ResultTableWidget()
@@ -164,7 +165,7 @@ void ResultTableWidget::currentConnectionChanged(int index)
         queryThread->start();
     }
 
-    kDebug() << index;
+    qDebug() << index;
     if (index != -1) {
         m_ui->messageLabel->setText(QString(""));
 

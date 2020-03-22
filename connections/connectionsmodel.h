@@ -32,8 +32,8 @@ class ConnectionsModel : public QAbstractListModel
 {
 public:
     ConnectionsModel(KDevelop::IProject *project, QObject *parent);
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
     struct Connection {
         QString driver;
@@ -47,8 +47,8 @@ public:
     void setConnection(int row, Connection connection);
 
 public slots:
-    virtual void revert();
-    virtual bool submit();
+    virtual void revert() override;
+    virtual bool submit() override;
 
 private:
     KDevelop::IProject* project() const;
