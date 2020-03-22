@@ -66,7 +66,12 @@ set(kdevsqllanguagesupport_SRCS
 )
 qt5_wrap_ui( kdevsqllanguagesupport_SRCS results.ui )
 
-add_library(kdevsqllanguagesupport ${kdevsqllanguagesupport_SRCS})
+#add_library(kdevsqllanguagesupport ${kdevsqllanguagesupport_SRCS})
+
+kdevplatform_add_plugin(kdevsqllanguagesupport
+    JSON sqllanguagesupport.json
+    SOURCES ${kdevsqllanguagesupport_SRCS}
+)
 
 target_link_libraries(kdevsqllanguagesupport
     KDev::Interfaces

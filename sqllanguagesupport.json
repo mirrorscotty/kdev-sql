@@ -1,0 +1,29 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Niko Sams"
+            }
+        ],
+        "Description": "Support for SQL Language",
+        "Id": "kdevsqlsupport",
+        "Name": "SQL Support",
+        "Icon": "server-database",
+        "License": "GPL",
+        "ServiceTypes": [
+            "KDevelop/Plugin"
+        ],
+        "Category": "Language Support"
+    },
+    "X-KDevelop-Category": "Global",
+    "X-KDevelop-Interfaces": [
+        "ILanguageSupport"
+    ],
+    "X-KDevelop-Languages": [
+        "SQL"
+    ],
+    "X-KDevelop-SupportedMimeTypes": [
+        "application/sql"
+    ],
+    "X-KDevelop-Mode": "GUI"
+}

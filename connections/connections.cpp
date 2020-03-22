@@ -146,7 +146,7 @@ void Connections::testConnection()
         testDb.setPassword(c.password);
         testDb.setDatabaseName(c.databaseName);
         if (!testDb.open()) {
-            m_ui->testResult->setText(i18n("<b>Connect failed:</b><br />%1", Qt::escape(testDb.lastError().text())));
+            m_ui->testResult->setText(i18n("<b>Connect failed:</b><br />%1", QString(testDb.lastError().text()).toHtmlEscaped()));
         } else {
             m_ui->testResult->setText(i18n("Successfully connected."));
         }

@@ -66,6 +66,7 @@ int ConnectionsModel::rowCount(const QModelIndex& parent) const
 
 void ConnectionsModel::revert()
 {
+    beginResetModel();
     m_connections.clear();
     KConfigGroup group = project()->projectConfiguration()->group("DatabaseConnections");
     int count = group.readEntry("Count", 0);
@@ -80,7 +81,7 @@ void ConnectionsModel::revert()
         c.password = g.readEntry("Password", QString()); //TODO use KWallet
         m_connections << c;
     }
-    reset();
+    endResetModel();
 }
 
 bool ConnectionsModel::submit()

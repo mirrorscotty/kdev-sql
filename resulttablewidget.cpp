@@ -105,21 +105,24 @@ public:
 private slots:
     void projectOpened(KDevelop::IProject* project)
     {
+        beginResetModel();
         m_models[project] = new ConnectionsModel(project, this);
         connect(m_models[project], SIGNAL(modelReset()), SLOT(childModelReset()));
-        reset();
+        endResetModel();
     }
 
     void childModelReset()
     {
-        reset();
+        beginResetModel();
+        endResetModel();
     }
 
     void projectClosed(KDevelop::IProject* project)
     {
+        beginResetModel();
         delete m_models[project];
         m_models.remove(project);
-        reset();
+        endResetModel();
     }
 
     void reloadModels()
@@ -202,7 +205,7 @@ void ResultTableWidget::runSql(QString sql)
 
 void ResultTableWidget::error(const QString& errorText)
 {
-    m_ui->messageLabel->setText(Qt::escape(errorText));
+    m_ui->messageLabel->setText(QString(errorText).toHtmlEscaped());
     m_ui->stackedWidget->setCurrentWidget(m_ui->messagePage);
 }
 
