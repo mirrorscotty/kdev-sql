@@ -101,9 +101,9 @@ LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
     KActionCollection* ac = actionCollection();
 
     QAction * action = new QAction(QIcon::fromTheme("system-run"), i18n("Run SQL"), this);
-    action->setShortcut(Qt::CTRL + Qt::Key_E);
     connect(action, SIGNAL(triggered(bool)), SLOT(runSql()));
     ac->addAction("run_sql", action);
+    ac->setDefaultShortcut(action, Qt::CTRL + Qt::Key_E);
 }
 
 QString LanguageSupport::name() const
