@@ -25,6 +25,7 @@ find_package(KF5 REQUIRED COMPONENTS
     ConfigWidgets
 )
 find_package(KDevPlatform ${KDEVPLATFORM_VERSION} REQUIRED)
+find_package(KDevelop ${KDEVPLATFORM_VERSION} REQUIRED)
 find_package(Qt5 REQUIRED
     Core
     Widgets
@@ -56,18 +57,22 @@ include(KDECMakeSettings)
 include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 
-add_subdirectory(connections)
-
 set(kdevsqllanguagesupport_SRCS
     sqllanguagesupport.cpp
     resulttablewidget.cpp
     connections/connectionsmodel.cpp
+    connections/connections.cpp
     queryworker.cpp
 )
-qt5_wrap_ui( kdevsqllanguagesupport_SRCS results.ui )
+
+ki18n_wrap_ui( kdevsqllanguagesupport_SRCS
+    results.ui
+    connections/connections.ui
+)
 
 #add_library(kdevsqllanguagesupport ${kdevsqllanguagesupport_SRCS})
 
+qt5_add_resources( kdevsqllanguagesupport_SRCS kdevsqlui.qrc )
 kdevplatform_add_plugin(kdevsqllanguagesupport
     JSON sqllanguagesupport.json
     SOURCES ${kdevsqllanguagesupport_SRCS}
@@ -88,18 +93,16 @@ target_link_libraries(kdevsqllanguagesupport
     KF5::ConfigWidgets
 )
 
+
 install(TARGETS kdevsqllanguagesupport DESTINATION ${PLUGIN_INSTALL_DIR})
 
-configure_file(kdevsqlsupport.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/kdevsqlsupport.desktop)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kdevsqlsupport.desktop DESTINATION ${SERVICES_INSTALL_DIR})
-
-install( FILES kdevsqlui.rc DESTINATION ${DATA_INSTALL_DIR}/kdevsqlsupport )
+install( FILES kdevsqlui.rc DESTINATION ${KXMLGUI_INSTALL_DIR}/kdevsqlsupport )
 
 # kdebugsettings file
-#if (ECM_VERSION VERSION_GREATER "5.58.0")
-#    install(FILES %{APPNAMELC}.categories DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
-#else()
-#    install(FILES %{APPNAMELC}.categories DESTINATION ${KDE_INSTALL_CONFDIR})
-#endif()
+if (ECM_VERSION VERSION_GREATER "5.58.0")
+    install(FILES kdevsqlsupport.categories DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
+else()
+    install(FILES kdevsqlsupport.categories DESTINATION ${KDE_INSTALL_CONFDIR})
+endif()
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

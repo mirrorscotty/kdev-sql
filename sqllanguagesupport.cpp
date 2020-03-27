@@ -17,6 +17,7 @@
 */
 
 #include "sqllanguagesupport.h"
+#include "connections/connections.h"
 
 #include <QSqlQueryModel>
 #include <QSqlDatabase>
@@ -89,6 +90,7 @@ LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
     : KDevelop::IPlugin("SQL Support", parent),
       KDevelop::ILanguageSupport()
 {
+    setComponentName("kdevsqlsupport", "SQL Support");
     setXMLFile("kdevsqlui.rc");
 
     m_self = this;
@@ -128,6 +130,21 @@ void LanguageSupport::runSql()
         text = core()->documentController()->activeDocument()->textDocument()->text(selection);
     }
     resTable->runSql(text);
+}
+
+int LanguageSupport::perProjectConfigPages() const
+{
+    return 1;
+}
+
+KDevelop::ConfigPage* LanguageSupport::perProjectConfigPage(int number,
+        const KDevelop::ProjectConfigOptions& options,
+        QWidget *parent)
+{
+    if(number==0) {
+        return new ProjectConfigPage(this, options, parent);
+    }
+    return nullptr;
 }
 
 }

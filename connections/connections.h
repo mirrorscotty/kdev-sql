@@ -17,32 +17,47 @@
 
 */
 
-#ifndef SQL_CONNECTIONS_CONNECTIONS_H
-#define SQL_CONNECTIONS_CONNECTIONS_H
+#ifndef PROJECTCONFIGPAGE_H
+#define PROJECTCONFIGPAGE_H
 
-#include <kcmodule.h>
-#include <ksharedconfig.h>
-#include <QVariant>
+#include <interfaces/configpage.h>
+#include <project/projectconfigpage.h>
+#include <ui_connections.h>
+#include <KConfigGroup>
 
-class QModelIndex;
-namespace Ui {
-    class Connections;
+namespace KDevelop
+{
+class IProject;
 }
 
-namespace Sql {
+namespace Ui
+{
+class Connections;
+}
+
+
+class QModelIndex;
+
+namespace Sql
+{
 
 class ConnectionsModel;
 
-class Connections : public KCModule
+class ProjectConfigPage : public KDevelop::ConfigPage
 {
     Q_OBJECT
+
 public:
+    ProjectConfigPage(KDevelop::IPlugin *plugin,
+            const KDevelop::ProjectConfigOptions &options,
+            QWidget *parent);
+    ~ProjectConfigPage() override;
 
-    Connections( QWidget *parent, const QVariantList &args = QVariantList() );
-    virtual ~Connections();
+    QString name() const override;
+    QIcon icon() const override;
 
-    void save() override;
-    void load() override;
+    void apply() override;
+    void reset() override;
 
 private slots:
     void currentRowChanged(const QModelIndex& index);
@@ -50,10 +65,11 @@ private slots:
     void testConnection();
 
 private:
-    Ui::Connections* m_ui;
-    ConnectionsModel *m_model;
+    Ui_Connections *ui;
+    ConnectionsModel *conn;
+    KDevelop::IProject *project;
 };
 
 }
 
-#endif
+#endif // PROJECTCONFIGPAGE_H

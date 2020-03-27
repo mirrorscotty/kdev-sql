@@ -21,6 +21,7 @@
 
 #include <kdevplatform/interfaces/iplugin.h>
 #include <kdevplatform/language/interfaces/ilanguagesupport.h>
+#include <project/projectconfigpage.h>
 
 namespace Sql
 {
@@ -43,6 +44,11 @@ public:
     virtual KDevelop::ParseJob* createParseJob(const KDevelop::IndexedString&) override { return 0; }
 
     static LanguageSupport* self();
+
+    int perProjectConfigPages() const override;
+    KDevelop::ConfigPage* perProjectConfigPage(int number,
+            const KDevelop::ProjectConfigOptions &options,
+            QWidget *parent) override;
 
 private slots:
     void runSql();

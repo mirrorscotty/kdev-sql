@@ -17,127 +17,122 @@
 
 */
 
+#include "connectionsmodel.h"
+#include "ui_connections.h"
 #include "connections.h"
 
-#include <QVBoxLayout>
-#include <QTextDocument>
+#include <interfaces/iproject.h>
 #include <QSqlDatabase>
 #include <QSqlError>
-#include <KAboutData>
+#include <QtCore>
 
-#include <kpluginfactory.h>
-#include <kpluginloader.h>
-
-#include <interfaces/icore.h>
-#include <interfaces/iplugincontroller.h>
-#include <interfaces/iprojectcontroller.h>
-#include <interfaces/iproject.h>
-
-#include "ui_connections.h"
-#include "connectionsmodel.h"
-#include <klocalizedstring.h>
-#include <util/path.h>
-
-using namespace Sql;
-
-K_PLUGIN_FACTORY(ConnectionsFactory, registerPlugin<Connections>(); )
-K_EXPORT_PLUGIN(ConnectionsFactory("kcm_kdev_sqlconnections"))
-
-Connections::Connections( QWidget *parent, const QVariantList &args )
-    : KCModule(parent, args )
+namespace Sql
 {
-    KDevelop::IProject* project = 0;
-    Q_FOREACH (KDevelop::IProject* p, KDevelop::ICore::self()->projectController()->projects()) {
-        if (p->projectFile().toLocalFile() == args.at(1).toString()) {
-            project = p;
-            break;
-        }
-    }
+
+ProjectConfigPage::ProjectConfigPage(KDevelop::IPlugin *plugin,
+        const KDevelop::ProjectConfigOptions &options,
+        QWidget *parent)
+    : KDevelop::ConfigPage(plugin, nullptr, parent)
+{
+    project = options.project;
     Q_ASSERT(project);
 
-    setButtons(Help | Apply);
+    ui = new Ui_Connections;
+    ui->setupUi(this);
 
-    QVBoxLayout * l = new QVBoxLayout( this );
-    setLayout(l);
-    QWidget* w = new QWidget();
-    l->addWidget(w);
+    conn = new ConnectionsModel(project, this);
 
-    m_ui = new Ui::Connections();
-    m_ui->setupUi(w);
-
-    m_model = new ConnectionsModel(project, this);
-    m_ui->list->setModel(m_model);
-    connect(m_model, SIGNAL(dataChanged(QModelIndex, QModelIndex)),
+    ui->list->setModel(conn);
+    connect(conn, SIGNAL(dataChanged(QModelIndex, QModelIndex)),
             this, SLOT(changed()));
-    connect(m_model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+    connect(conn, SIGNAL(rowsRemoved(QModelIndex, int, int)),
             this, SLOT(changed()));
-    connect(m_ui->list->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), SLOT(currentRowChanged(QModelIndex)));
+    connect(ui->list->selectionModel(),
+            SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+            SLOT(currentRowChanged(QModelIndex)));
 
-    m_ui->testResult->setText("");
-    m_ui->driver->insertItems(0, QSqlDatabase::drivers());;
+    ui->testResult->setText("");
+    ui->driver->insertItems(0, QSqlDatabase::drivers());
 
-    connect(m_ui->driver, SIGNAL(currentIndexChanged(int)), SLOT(connectionEdited()));
-    connect(m_ui->hostName, SIGNAL(textEdited(QString)), SLOT(connectionEdited()));
-    connect(m_ui->database, SIGNAL(textEdited(QString)), SLOT(connectionEdited()));
-    connect(m_ui->userName, SIGNAL(textEdited(QString)), SLOT(connectionEdited()));
-    connect(m_ui->password, SIGNAL(textEdited(QString)), SLOT(connectionEdited()));
+    connect(ui->driver, SIGNAL(currentIndexChanged(int)),
+            SLOT(connectionEdited()));
+    connect(ui->hostName, SIGNAL(textEdited(QString)),
+            SLOT(connectionEdited()));
+    connect(ui->database, SIGNAL(textEdited(QString)),
+            SLOT(connectionEdited()));
+    connect(ui->userName, SIGNAL(textEdited(QString)),
+            SLOT(connectionEdited()));
+    connect(ui->password, SIGNAL(textEdited(QString)),
+            SLOT(connectionEdited()));
 
-    load();
+    reset();
 }
 
-Connections::~Connections( )
+ProjectConfigPage::~ProjectConfigPage()
 {
-    delete m_ui;
+    delete ui;
 }
 
-void Connections::save()
+void ProjectConfigPage::apply()
 {
-    m_model->submit();
+    conn->submit();
 }
 
-void Connections::load()
+void ProjectConfigPage::reset()
 {
-    m_model->revert();
-    m_ui->list->setCurrentIndex(m_model->index(0, 0));
+    conn->revert();
+    ui->list->setCurrentIndex(conn->index(0, 0));
 }
 
-void Connections::currentRowChanged(const QModelIndex& index)
+
+
+QIcon ProjectConfigPage::icon() const
 {
-    ConnectionsModel::Connection c = m_model->connection(index.row());
-    m_ui->driver->blockSignals(true);
-    m_ui->driver->setCurrentItem(c.driver);
-    m_ui->driver->blockSignals(false);
-    m_ui->hostName->setText(c.hostName);
-    m_ui->database->setText(c.databaseName);
-    m_ui->userName->setText(c.userName);
-    m_ui->password->setText(c.password);
+    return QIcon::fromTheme(QStringLiteral("server-database"));
+}
+
+QString ProjectConfigPage::name() const
+{
+    return i18n("Database Connections");
+}
+
+void ProjectConfigPage::currentRowChanged(const QModelIndex& index)
+{
+    ConnectionsModel::Connection c = conn->connection(index.row());
+    ui->driver->blockSignals(true);
+    ui->driver->setCurrentItem(c.driver);
+    ui->driver->blockSignals(false);
+    ui->hostName->setText(c.hostName);
+    ui->database->setText(c.databaseName);
+    ui->userName->setText(c.userName);
+    ui->password->setText(c.password);
     testConnection();
 }
 
-void Connections::connectionEdited()
+void ProjectConfigPage::connectionEdited()
 {
     ConnectionsModel::Connection c;
-    c.driver = m_ui->driver->currentText();
-    c.hostName = m_ui->hostName->text();
-    c.databaseName = m_ui->database->text();
-    c.userName = m_ui->userName->text();
-    c.password = m_ui->password->text();
-    m_model->setConnection(m_ui->list->currentIndex().row(), c);
+    c.driver = ui->driver->currentText();
+    c.hostName = ui->hostName->text();
+    c.databaseName = ui->database->text();
+    c.userName = ui->userName->text();
+    c.password = ui->password->text();
+    conn->setConnection(ui->list->currentIndex().row(), c);
 
     testConnection(); //TODO buffer
 }
 
-void Connections::testConnection()
+void ProjectConfigPage::testConnection()
 {
-    if (m_ui->list->currentIndex().row() == m_model->rowCount()-1) {
+    if (ui->list->currentIndex().row() == conn->rowCount()-1) {
         //new connection
-        m_ui->testResult->setText("");
+        ui->testResult->setText("");
         return;
     }
     {
-        ConnectionsModel::Connection c = m_model->connection(m_ui->list->currentIndex().row());
+        ConnectionsModel::Connection c = conn->connection(ui->list->currentIndex().row());
         if (c.driver.isEmpty()) {
-            m_ui->testResult->setText("");
+            ui->testResult->setText("");
             return;
         }
         QSqlDatabase testDb = QSqlDatabase::addDatabase(c.driver, "kdevsqltest");
@@ -146,14 +141,13 @@ void Connections::testConnection()
         testDb.setPassword(c.password);
         testDb.setDatabaseName(c.databaseName);
         if (!testDb.open()) {
-            m_ui->testResult->setText(i18n("<b>Connect failed:</b><br />%1", QString(testDb.lastError().text()).toHtmlEscaped()));
+            ui->testResult->setText(i18n("<b>Connect failed:</b><br />%1", QString(testDb.lastError().text()).toHtmlEscaped()));
         } else {
-            m_ui->testResult->setText(i18n("Successfully connected."));
+            ui->testResult->setText(i18n("Successfully connected."));
         }
         testDb.close();
     }
     QSqlDatabase::removeDatabase("kdevsqltest");
 }
 
-
-#include "connections.moc"
+}

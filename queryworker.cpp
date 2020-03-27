@@ -23,11 +23,18 @@
 #include <QSqlError>
 #include <QDebug>
 
+#define KDEV_SQL_DB_NAME "kdevsql"
+
 namespace Sql {
 
 QueryWorker::QueryWorker(QObject *parent)
     : QThread(parent)
 {
+}
+
+QueryWorker::~QueryWorker()
+{
+    //QSqlDatabase::removeDatabase(KDEV_SQL_DB_NAME);
 }
 
 void QueryWorker::run()
@@ -39,7 +46,9 @@ void QueryWorker::run()
 void QueryWorker::execute(const QString& query)
 {
     qDebug() << QThread::currentThread();
-    QSqlQuery sql( query, m_db );
+    qDebug() << query;
+    QSqlQuery sql( m_db );
+    sql.prepare(query);
     QTime t;
     t.start();
     if (sql.exec()) {
@@ -53,13 +62,13 @@ void QueryWorker::execute(const QString& query)
 
 void QueryWorker::changeDatabaseConnection(ConnectionsModel::Connection c)
 {
-    if (QSqlDatabase::contains("kdevsql")) {
+    if (QSqlDatabase::contains(KDEV_SQL_DB_NAME)) {
         if (m_db.isOpen()) m_db.close();
         m_db = QSqlDatabase();
-        QSqlDatabase::removeDatabase("kdevsql");
+        QSqlDatabase::removeDatabase(KDEV_SQL_DB_NAME);
     }
 
-    m_db = QSqlDatabase::addDatabase(c.driver, "kdevsql");
+    m_db = QSqlDatabase::addDatabase(c.driver, KDEV_SQL_DB_NAME);
     m_db.setHostName(c.hostName);
     m_db.setUserName(c.userName);
     m_db.setPassword(c.password);

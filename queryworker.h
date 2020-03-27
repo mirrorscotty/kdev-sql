@@ -31,6 +31,7 @@ class QueryWorker : public QThread
 
 public:
     QueryWorker(QObject *parent = 0);
+    ~QueryWorker();
 
 protected:
     virtual void run() override;

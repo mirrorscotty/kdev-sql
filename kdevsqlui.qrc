@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/kdevelop/kdevsqlsupport">
+        <file>kdevsqlui.rc</file>
+    </qresource>
+</RCC>
