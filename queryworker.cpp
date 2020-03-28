@@ -39,14 +39,11 @@ QueryWorker::~QueryWorker()
 
 void QueryWorker::run()
 {
-    qDebug() << QThread::currentThread();
     exec();
 }
 
 void QueryWorker::execute(const QString& query)
 {
-    qDebug() << QThread::currentThread();
-    qDebug() << query;
     QSqlQuery sql( m_db );
     sql.prepare(query);
     QTime t;

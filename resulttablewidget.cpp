@@ -155,17 +155,22 @@ ResultTableWidget::ResultTableWidget(QWidget* parent)
 ResultTableWidget::~ResultTableWidget()
 {
     delete m_ui;
+    if(m_queryWorker) {
+        m_queryWorker->quit();
+        m_queryWorker->wait();
+    }
 }
 
 void ResultTableWidget::currentConnectionChanged(int index)
 {
     if (!m_queryWorker) {
         m_queryWorker = new QueryWorker();
-        QThread *queryThread = new QThread(this);
+        //QThread *queryThread = new QThread(this);
         connect(m_queryWorker, SIGNAL(results(QSqlQuery, int)), SLOT(results(QSqlQuery, int)));
         connect(m_queryWorker, SIGNAL(error(QString)), SLOT(error(QString)));
-        m_queryWorker->moveToThread(queryThread);
-        queryThread->start();
+        //m_queryWorker->moveToThread(queryThread);
+        //queryThread->start();
+        m_queryWorker->start();
     }
 
     qDebug() << index;
