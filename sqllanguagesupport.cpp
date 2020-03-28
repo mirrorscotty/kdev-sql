@@ -37,7 +37,7 @@
 #include <interfaces/icore.h>
 #include <interfaces/idocumentcontroller.h>
 
-#include "resulttablewidget.h"
+#include "results/resulttablewidget.h"
 //#include "version.h"
 
 /*

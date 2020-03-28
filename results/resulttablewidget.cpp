@@ -158,6 +158,7 @@ ResultTableWidget::~ResultTableWidget()
     if(m_queryWorker) {
         m_queryWorker->quit();
         m_queryWorker->wait();
+        delete m_queryWorker;
     }
 }
 

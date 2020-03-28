@@ -59,14 +59,16 @@ include(FeatureSummary)
 
 set(kdevsqllanguagesupport_SRCS
     sqllanguagesupport.cpp
-    resulttablewidget.cpp
+    results/resulttablewidget.cpp
+    results/queryworker.cpp
     connections/connectionsmodel.cpp
     connections/connections.cpp
-    queryworker.cpp
+    schema/schemabrowserwidget.cpp
 )
 
 ki18n_wrap_ui( kdevsqllanguagesupport_SRCS
-    results.ui
+    results/results.ui
+    schema/schemabrowser.ui
     connections/connections.ui
 )
 
