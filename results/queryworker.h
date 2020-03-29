@@ -38,7 +38,7 @@ protected:
 
 public Q_SLOTS:
     void execute( const QString& query );
-    void changeDatabaseConnection(ConnectionsModel::Connection c);
+    void changeDatabaseConnection(Connection c);
 
 Q_SIGNALS:
     void results(QSqlQuery query, int elapsedTime);
@@ -49,5 +49,4 @@ private:
 
 }
 
-#include "queryworker.moc"
 #endif // QUERYWORKER_H

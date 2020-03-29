@@ -102,7 +102,7 @@ bool ConnectionsModel::submit()
     return true;
 }
 
-ConnectionsModel::Connection ConnectionsModel::connection(int row) const
+Connection ConnectionsModel::connection(int row) const
 {
     if (row == m_connections.count()) {
         return Connection();
@@ -112,7 +112,7 @@ ConnectionsModel::Connection ConnectionsModel::connection(int row) const
     }
 }
 
-void ConnectionsModel::setConnection(int row, ConnectionsModel::Connection connection)
+void ConnectionsModel::setConnection(int row, Connection connection)
 {
     if (row == m_connections.count()) {
         beginInsertRows(QModelIndex(), row+1, row+1);

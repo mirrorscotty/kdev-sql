@@ -57,7 +57,7 @@ void QueryWorker::execute(const QString& query)
     }
 }
 
-void QueryWorker::changeDatabaseConnection(ConnectionsModel::Connection c)
+void QueryWorker::changeDatabaseConnection(Connection c)
 {
     if (QSqlDatabase::contains(KDEV_SQL_DB_NAME)) {
         if (m_db.isOpen()) m_db.close();
@@ -77,4 +77,4 @@ void QueryWorker::changeDatabaseConnection(ConnectionsModel::Connection c)
 
 }
 
-#include "queryworker.moc"
+#include "moc_queryworker.cpp"

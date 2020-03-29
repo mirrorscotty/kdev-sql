@@ -28,6 +28,7 @@ namespace Sql
 int debugArea();
 
 class ResultTableWidget;
+class SchemaBrowserWidget;
 template<typename T> class ToolFactory;
 
 class LanguageSupport : public KDevelop::IPlugin, public KDevelop::ILanguageSupport
@@ -56,6 +57,7 @@ private slots:
 private:
     static LanguageSupport* m_self;
     ToolFactory<ResultTableWidget>* m_resultTableFactory;
+    ToolFactory<SchemaBrowserWidget>* m_schemaBrowserFactory;
 };
 
 }

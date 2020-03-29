@@ -38,6 +38,7 @@
 #include <interfaces/idocumentcontroller.h>
 
 #include "results/resulttablewidget.h"
+#include "schema/schemabrowserwidget.h"
 //#include "version.h"
 
 /*
@@ -97,6 +98,22 @@ LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
 
     m_resultTableFactory = new ToolFactory<ResultTableWidget>(
         "org.kdevelop.sql.ResultTable", Qt::BottomDockWidgetArea);
+    core()->uiController()->addToolView(i18n("Run Sql"), m_resultTableFactory);
+    m_schemaBrowserFactory = new ToolFactory<SchemaBrowserWidget>(
+        "org.kdevelop.sql.SchemaBrowser", Qt::RightDockWidgetArea);
+    core()->uiController()->addToolView(i18n("Schema Browser"), m_schemaBrowserFactory);
+
+    //QWidget* w = core()->uiController()->findToolView(i18n("SQL Query"), m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
+    //Q_ASSERT(w);
+    //ResultTableWidget *resultWidget = dynamic_cast<ResultTableWidget*>(w);
+    //Q_ASSERT(resultWidget);
+
+    //QWidget *sw = core()->uiController()->findToolView("Schema Browser", m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
+    //Q_ASSERT(sw);
+    //SchemaBrowserWidget *schemaWidget = dynamic_cast<SchemaBrowserWidget*>(sw);
+    //Q_ASSERT(schemaWidget);
+
+    //connect(resultWidget, SIGNAL(newConnection), schemaWidget, SLOT(setConnection));
 
     KActionCollection* ac = actionCollection();
 
@@ -148,6 +165,5 @@ KDevelop::ConfigPage* LanguageSupport::perProjectConfigPage(int number,
 }
 
 }
-
 
 #include "sqllanguagesupport.moc"

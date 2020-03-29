@@ -49,6 +49,8 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/connections
+    ${CMAKE_CURRENT_SOURCE_DIR}/results
+    ${CMAKE_CURRENT_SOURCE_DIR}/schema
 )
 
 include(KDEInstallDirs)
@@ -63,7 +65,10 @@ set(kdevsqllanguagesupport_SRCS
     results/queryworker.cpp
     connections/connectionsmodel.cpp
     connections/connections.cpp
+    connections/connectionsallprojectsmodel.cpp
     schema/schemabrowserwidget.cpp
+    schema/dbschemamodel.cpp
+    schema/dbschemaitem.cpp
 )
 
 ki18n_wrap_ui( kdevsqllanguagesupport_SRCS

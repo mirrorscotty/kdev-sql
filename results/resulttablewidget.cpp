@@ -36,105 +36,12 @@
 #include <interfaces/iproject.h>
 
 #include "connections/connectionsmodel.h"
+#include "connections/connectionsallprojectsmodel.h"
 #include "queryworker.h"
 #include "ui_results.h"
 
 
 namespace Sql {
-
-class ConnectionsAllProjectsModel : public QAbstractListModel
-{
-    Q_OBJECT
-public:
-    ConnectionsAllProjectsModel(QObject *parent) : QAbstractListModel(parent)
-    {
-        connect(KDevelop::ICore::self()->projectController(), SIGNAL(projectOpened(KDevelop::IProject*)),
-                SLOT(projectOpened(KDevelop::IProject*)));
-        connect(KDevelop::ICore::self()->projectController(), SIGNAL(projectClosed(KDevelop::IProject*)),
-                SLOT(projectClosed(KDevelop::IProject*)));
-
-        foreach (KDevelop::IProject *p, KDevelop::ICore::self()->projectController()->projects())
-            projectOpened(p);
-
-        KSettings::Dispatcher::registerComponent("kdevplatformproject", this, "reloadModels");
-    }
-
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override
-    {
-        if (parent.isValid()) return 0;
-        int ret = 0;
-        foreach (ConnectionsModel *m, m_models) {
-            ret += m->rowCount()-1;
-        }
-        return ret;
-    }
-
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override
-    {
-        if (index.parent().isValid()) return QVariant();
-        if (index.column() > 0) return QVariant();
-        if (role != Qt::DisplayRole) return QVariant();
-        int i = 0;
-        QHashIterator<KDevelop::IProject*, ConnectionsModel*> it(m_models);
-        while (it.hasNext()) {
-            it.next();
-            ConnectionsModel *m = it.value();
-            KDevelop::IProject *p = it.key();
-            if (index.row() < i + m->rowCount()-1) {
-                return p->name() + ": " + m->data(m->index(index.row()-i, 0), role).toString();
-            }
-            i += m->rowCount()-1;
-        }
-        Q_ASSERT(0);
-        return QVariant();
-    }
-
-    ConnectionsModel::Connection connection(int row)
-    {
-        int i = 0;
-        foreach (ConnectionsModel *m, m_models) {
-            if (row < i + m->rowCount()-1) {
-                return m->connection(row - i);
-            }
-            i += m->rowCount()-1;
-        }
-        Q_ASSERT(0);
-        return ConnectionsModel::Connection();
-    }
-
-private slots:
-    void projectOpened(KDevelop::IProject* project)
-    {
-        beginResetModel();
-        m_models[project] = new ConnectionsModel(project, this);
-        connect(m_models[project], SIGNAL(modelReset()), SLOT(childModelReset()));
-        endResetModel();
-    }
-
-    void childModelReset()
-    {
-        beginResetModel();
-        endResetModel();
-    }
-
-    void projectClosed(KDevelop::IProject* project)
-    {
-        beginResetModel();
-        delete m_models[project];
-        m_models.remove(project);
-        endResetModel();
-    }
-
-    void reloadModels()
-    {
-        foreach (ConnectionsModel *m, m_models) {
-            m->revert();
-        }
-    }
-
-private:
-    QHash<KDevelop::IProject*, ConnectionsModel*> m_models;
-};
 
 ResultTableWidget::ResultTableWidget(QWidget* parent)
     : QWidget(parent), m_queryWorker(0)
@@ -160,6 +67,8 @@ ResultTableWidget::~ResultTableWidget()
         m_queryWorker->wait();
         delete m_queryWorker;
     }
+    delete m_connectionsModel;
+    delete m_model;
 }
 
 void ResultTableWidget::currentConnectionChanged(int index)
@@ -178,9 +87,11 @@ void ResultTableWidget::currentConnectionChanged(int index)
     if (index != -1) {
         m_ui->messageLabel->setText(QString(""));
 
-        ConnectionsModel::Connection c = m_connectionsModel->connection(index);
-        qRegisterMetaType<ConnectionsModel::Connection>("ConnectionsModel::Connection");
-        QMetaObject::invokeMethod(m_queryWorker, "changeDatabaseConnection", Qt::QueuedConnection, Q_ARG(ConnectionsModel::Connection, c));
+        Connection c = m_connectionsModel->connection(index);
+        qRegisterMetaType<Connection>("Connection");
+        QMetaObject::invokeMethod(m_queryWorker, "changeDatabaseConnection", Qt::QueuedConnection, Q_ARG(Connection, c));
+
+        emit newConnection(c);
     } else {
         if (!m_connectionsModel->rowCount()) {
             m_ui->messageLabel->setText(i18n("No Database Connection available. Open Project Configuration for to create one."));
@@ -225,5 +136,4 @@ void ResultTableWidget::results(QSqlQuery query, int elapsedTime)
 
 }
 
-#include "resulttablewidget.moc"
 #include "moc_resulttablewidget.cpp"

@@ -28,20 +28,20 @@ namespace KDevelop {
 
 namespace Sql {
 
+struct Connection {
+    QString driver;
+    QString hostName;
+    QString databaseName;
+    QString userName;
+    QString password;
+};
+
 class ConnectionsModel : public QAbstractListModel
 {
 public:
     ConnectionsModel(KDevelop::IProject *project, QObject *parent);
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-
-    struct Connection {
-        QString driver;
-        QString hostName;
-        QString databaseName;
-        QString userName;
-        QString password;
-    };
 
     Connection connection(int row) const;
     void setConnection(int row, Connection connection);

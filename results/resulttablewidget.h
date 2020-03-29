@@ -21,6 +21,7 @@
 
 #include <QWidget>
 #include <QSqlDatabase>
+#include "connections/connectionsmodel.h"
 
 namespace Ui {
     class Results;
@@ -42,6 +43,9 @@ public:
     ~ResultTableWidget();
 
     void runSql(QString sql);
+
+signals:
+    void newConnection(Connection c);
 
 private slots:
     void currentConnectionChanged(int index);

@@ -98,7 +98,7 @@ QString ProjectConfigPage::name() const
 
 void ProjectConfigPage::currentRowChanged(const QModelIndex& index)
 {
-    ConnectionsModel::Connection c = conn->connection(index.row());
+    Connection c = conn->connection(index.row());
     ui->driver->blockSignals(true);
     ui->driver->setCurrentItem(c.driver);
     ui->driver->blockSignals(false);
@@ -111,7 +111,7 @@ void ProjectConfigPage::currentRowChanged(const QModelIndex& index)
 
 void ProjectConfigPage::connectionEdited()
 {
-    ConnectionsModel::Connection c;
+    Connection c;
     c.driver = ui->driver->currentText();
     c.hostName = ui->hostName->text();
     c.databaseName = ui->database->text();
@@ -130,7 +130,7 @@ void ProjectConfigPage::testConnection()
         return;
     }
     {
-        ConnectionsModel::Connection c = conn->connection(ui->list->currentIndex().row());
+        Connection c = conn->connection(ui->list->currentIndex().row());
         if (c.driver.isEmpty()) {
             ui->testResult->setText("");
             return;
