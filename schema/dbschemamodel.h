@@ -23,9 +23,10 @@
 #include <QSqlDatabase>
 #include "dbschemaitem.h"
 
-
 namespace Sql
 {
+
+class DbInfoBase;
 
 /**
  * @todo write docs
@@ -104,11 +105,13 @@ public slots:
     void refreshModelData();
 
 private:
-    QSqlDatabase *db;
+    //QSqlDatabase *db;
+    DbInfoBase *dbInfo;
     DbSchemaItem *rootItem;
 
-    void loadTablesFromDb(QSql::TableType type);
+    void loadTablesFromDb(QSql::TableType type, DbSchemaItem *parent = nullptr);
     void loadColumnsForTable(DbSchemaItem *tableItem);
+    void loadIndexesForTable(DbSchemaItem *tableItem);
 };
 
 }

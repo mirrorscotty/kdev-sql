@@ -53,6 +53,8 @@ public:
      */
     DbSchemaItem(QSqlField column, DbSchemaItem *parent = nullptr);
 
+    DbSchemaItem(QString folderName, DbSchemaItem *parent = nullptr);
+
     /**
      * Add a child item to this node in the tree
      * @param child The item to add

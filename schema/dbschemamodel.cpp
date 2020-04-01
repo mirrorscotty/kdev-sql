@@ -17,9 +17,13 @@
  */
 
 #include "dbschemamodel.h"
+#include "dbinfo/dbinfobase.h"
+#include "dbinfo/dbinfopostgres.h"
 
+#include <klocalizedstring.h>
 #include <QAbstractItemModel>
 #include <QSqlRecord>
+#include <QSqlIndex>
 #include <QDebug>
 
 namespace Sql
@@ -28,7 +32,9 @@ namespace Sql
 DbSchemaModel::DbSchemaModel(QSqlDatabase *database, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    db = database;
+    //dbInfo = new DbInfoBase(database);
+    dbInfo = new DbInfoPostgres(database);
+    //db = database;
     rootItem = nullptr;
     refreshModelData();
 }
@@ -36,6 +42,7 @@ DbSchemaModel::DbSchemaModel(QSqlDatabase *database, QObject *parent)
 DbSchemaModel::~DbSchemaModel()
 {
     delete rootItem;
+    delete dbInfo;
 }
 
 QModelIndex DbSchemaModel::index ( int row, int column, const QModelIndex& parent ) const
@@ -129,44 +136,86 @@ QVariant DbSchemaModel::headerData ( int section, Qt::Orientation orientation, i
 
 void DbSchemaModel::refreshModelData()
 {
+    beginResetModel();
+
     if(rootItem) {
         delete rootItem;
     }
     rootItem = new DbSchemaItem();
+    DbSchemaItem *tablesFolder, *systemTablesFolder, *viewsFolder;
+    tablesFolder = new DbSchemaItem(i18n("Tables"), rootItem);
+    systemTablesFolder = new DbSchemaItem(i18n("System Tables"), tablesFolder);
+    viewsFolder = new DbSchemaItem(i18n("Views"), rootItem);
+    rootItem->appendChild(tablesFolder);
+    tablesFolder->appendChild(systemTablesFolder);
+    rootItem->appendChild(viewsFolder);
 
-    QStringList tables;
-    loadTablesFromDb(QSql::TableType::Tables);
-    loadTablesFromDb(QSql::TableType::Views);
-    loadTablesFromDb(QSql::TableType::SystemTables);
+    loadTablesFromDb(QSql::TableType::Tables, tablesFolder);
+    loadTablesFromDb(QSql::TableType::Views, viewsFolder);
+    loadTablesFromDb(QSql::TableType::SystemTables, systemTablesFolder);
 
-    for(int i = 0; i < rootItem->childCount(); i++) {
-        loadColumnsForTable(rootItem->child(i));
-    }
+    endResetModel();
 }
 
-void DbSchemaModel::loadTablesFromDb(QSql::TableType tableType)
+void DbSchemaModel::loadTablesFromDb(QSql::TableType tableType, DbSchemaItem *parent)
 {
-    QStringList tables = db->tables(tableType);
+    if(!parent) {
+        parent = rootItem;
+    }
+
+    QStringList tables = dbInfo->getTables(tableType);
     DbSchemaItem *tableItem;
     for(int i = 0; i < tables.count(); i++) {
-        tableItem = new DbSchemaItem(tables.at(i), tableType);
-        rootItem->appendChild(tableItem);
+        tableItem = new DbSchemaItem(tables.at(i), tableType, parent);
+        parent->appendChild(tableItem);
+        loadColumnsForTable(tableItem);
+        loadIndexesForTable(tableItem);
     }
 }
 
 void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
 {
-    QString tableName;
-    QSqlRecord record;
-    DbSchemaItem *columnItem;
-    tableName = tableItem->data(0).toString();
-    record = db->record(tableName);
+    QString tableName = tableItem->data(0).toString();
+    QVector<QSqlField> allColumns;
+    DbSchemaItem *columnItem, *columnFolder;
+    columnFolder = new DbSchemaItem("Columns", tableItem);
+    tableItem->appendChild(columnFolder);
+
+    allColumns = dbInfo->getColumns(tableName);
 
     QSqlField column;
-    for(int i = 0; i < record.count(); i++) {
-        column = record.field(i);
-        columnItem = new DbSchemaItem(column, tableItem);
-        tableItem->appendChild(columnItem);
+    for(int i = 0; i < allColumns.count(); i++) {
+        column = allColumns[i];
+        columnItem = new DbSchemaItem(column, columnFolder);
+        columnFolder->appendChild(columnItem);
+    }
+}
+
+void DbSchemaModel::loadIndexesForTable(DbSchemaItem *tableItem)
+{
+    QString tableName = tableItem->data(0).toString();
+    QVector<QSqlIndex> allIndexes;
+    allIndexes = dbInfo->getIndexes(tableName);
+    if(allIndexes.isEmpty()) {
+        return;
+    }
+
+    DbSchemaItem *indexFolder, *indexItem, *columnItem;
+    indexFolder = new DbSchemaItem("Indexes", tableItem);
+    tableItem->appendChild(indexFolder);
+
+    QString indexName;
+    QSqlIndex index;
+    for(int i = 0; i < allIndexes.count(); i++) {
+        indexName = allIndexes[i].name();
+        index = allIndexes[i];
+
+        indexItem = new DbSchemaItem(indexName, indexFolder);
+        indexFolder->appendChild(indexItem);
+        for(int i = 0; i < index.count(); i++) {
+            columnItem = new DbSchemaItem(index.field(i), indexItem);
+            indexItem->appendChild(columnItem);
+        }
     }
 }
 

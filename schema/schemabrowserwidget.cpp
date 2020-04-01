@@ -63,11 +63,12 @@ void SchemaBrowserWidget::setConnection(Connection c)
     }
     qDebug() << db << "opened successfully!";
 
-    if(schemaModel) {
-        delete schemaModel;
+    if(!schemaModel) {
+        schemaModel = new DbSchemaModel(&db);
+        connect(ui->refreshButton, SIGNAL(clicked()), schemaModel, SLOT(refreshModelData));
+        ui->schemaView->setModel(schemaModel);
     }
-    schemaModel = new DbSchemaModel(&db);
-    ui->schemaView->setModel(schemaModel);
+    schemaModel->refreshModelData();
 }
 
 void SchemaBrowserWidget::connectionChanged(int index)

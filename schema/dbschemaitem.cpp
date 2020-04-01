@@ -49,6 +49,13 @@ DbSchemaItem::DbSchemaItem ( QString tableName, QSql::TableType type, DbSchemaIt
     }
 }
 
+DbSchemaItem::DbSchemaItem ( QString folderName, Sql::DbSchemaItem* parent )
+    : parent(parent)
+{
+    name = folderName;
+    dataType = QString::Null();
+}
+
 DbSchemaItem::DbSchemaItem ( QSqlField column, DbSchemaItem* parent )
     : parent(parent)
 {
