@@ -81,11 +81,18 @@ public:
     return m_defaultArea;
   }
 
+  virtual bool allowMultiple() const override
+  {
+    return false;
+  }
+
 private:
   QString m_id;
   Qt::DockWidgetArea m_defaultArea;
 };
 
+#define RESULTS_VIEW_NAME i18n("SQL Query")
+#define SCHEMA_VIEW_NAME i18n("Schema Browser")
 
 LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
     : KDevelop::IPlugin("SQL Support", parent),
@@ -98,10 +105,10 @@ LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
 
     m_resultTableFactory = new ToolFactory<ResultTableWidget>(
         "org.kdevelop.sql.ResultTable", Qt::BottomDockWidgetArea);
-    core()->uiController()->addToolView(i18n("Run Sql"), m_resultTableFactory);
+    core()->uiController()->addToolView(RESULTS_VIEW_NAME ,m_resultTableFactory);
     m_schemaBrowserFactory = new ToolFactory<SchemaBrowserWidget>(
         "org.kdevelop.sql.SchemaBrowser", Qt::RightDockWidgetArea);
-    core()->uiController()->addToolView(i18n("Schema Browser"), m_schemaBrowserFactory);
+    core()->uiController()->addToolView(SCHEMA_VIEW_NAME, m_schemaBrowserFactory);
 
     //QWidget* w = core()->uiController()->findToolView(i18n("SQL Query"), m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
     //Q_ASSERT(w);
@@ -135,7 +142,7 @@ LanguageSupport *LanguageSupport::self()
 
 void LanguageSupport::runSql()
 {
-    QWidget* w = core()->uiController()->findToolView(i18n("SQL Query"), m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
+    QWidget* w = core()->uiController()->findToolView(RESULTS_VIEW_NAME, m_resultTableFactory, KDevelop::IUiController::Raise);
     Q_ASSERT(w);
     ResultTableWidget* resTable = dynamic_cast<ResultTableWidget*>(w);
     Q_ASSERT(resTable);
