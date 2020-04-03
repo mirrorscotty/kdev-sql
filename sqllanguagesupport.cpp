@@ -142,7 +142,7 @@ LanguageSupport *LanguageSupport::self()
 
 void LanguageSupport::runSql()
 {
-    QWidget* w = core()->uiController()->findToolView(RESULTS_VIEW_NAME, m_resultTableFactory, KDevelop::IUiController::Raise);
+    QWidget* w = core()->uiController()->findToolView(RESULTS_VIEW_NAME, m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
     Q_ASSERT(w);
     ResultTableWidget* resTable = dynamic_cast<ResultTableWidget*>(w);
     Q_ASSERT(resTable);

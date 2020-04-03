@@ -122,16 +122,23 @@ void ResultTableWidget::runSql(QString sql)
 
 void ResultTableWidget::error(const QString& errorText)
 {
-    m_ui->messageLabel->setText(QString(errorText).toHtmlEscaped());
+    m_ui->messageLabel->setText(QString(errorText)); //.toHtmlEscaped());
     m_ui->stackedWidget->setCurrentWidget(m_ui->messagePage);
 }
 
 void ResultTableWidget::results(QSqlQuery query, int elapsedTime)
 {
-    m_model->setQuery(query);
+    if(query.isSelect()) {
+        m_model->setQuery(query);
 
-    m_ui->durationLabel->setText(i18n("Query finished in %1 ms", QString::number(elapsedTime)));
-    m_ui->stackedWidget->setCurrentWidget(m_ui->resultsPage);
+        m_ui->durationLabel->setText(i18n("Query finished in %1 ms", QString::number(elapsedTime)));
+        m_ui->stackedWidget->setCurrentWidget(m_ui->resultsPage);
+    } else {
+        m_ui->messageLabel->setText(i18n("%1 rows affected (completed in %2 ms)",
+            QString::number(query.numRowsAffected()),
+            QString::number(elapsedTime)));
+        m_ui->stackedWidget->setCurrentWidget(m_ui->messagePage);
+    }
 }
 
 }

@@ -9,4 +9,8 @@
  </Menu>
 </MenuBar>
 
+<ToolBar name="mainToolBar">
+    <Action name="run_sql"/>
+</ToolBar>
+
 </gui>

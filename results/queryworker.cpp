@@ -44,16 +44,15 @@ void QueryWorker::run()
 
 void QueryWorker::execute(const QString& query)
 {
-    QSqlQuery sql( m_db );
-    sql.prepare(query);
     QTime t;
     t.start();
-    if (sql.exec()) {
+    QSqlQuery sql(query, m_db);
+    if(sql.isActive()) {
         int elapsed = t.elapsed();
         qRegisterMetaType<QSqlQuery>("QSqlQuery");
         emit results( sql, elapsed );
     } else {
-        emit error( sql.lastError().text() );
+        emit error( sql.lastError().databaseText() );
     }
 }
 
