@@ -20,7 +20,7 @@ SchemaBrowserWidget::SchemaBrowserWidget(QWidget *parent)
     allConnections = new ConnectionsAllProjectsModel(this);
     ui->connection->setModel(allConnections);
     connect(ui->connection, SIGNAL(currentIndexChanged(int)), this, SLOT(connectionChanged(int)));
-    //connectionChanged(ui->connection->currentIndex());
+    connectionChanged(ui->connection->currentIndex());
 
     //Connection c;
     //c.driver = "QPSQL";
@@ -65,7 +65,7 @@ void SchemaBrowserWidget::setConnection(Connection c)
 
     if(!schemaModel) {
         schemaModel = new DbSchemaModel(&db);
-        connect(ui->refreshButton, SIGNAL(clicked()), schemaModel, SLOT(refreshModelData));
+        connect(ui->refreshButton, SIGNAL(clicked()), schemaModel, SLOT(refreshModelData()));
         ui->schemaView->setModel(schemaModel);
     }
     schemaModel->refreshModelData();
