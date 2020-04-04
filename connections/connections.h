@@ -63,6 +63,11 @@ private slots:
     void currentRowChanged(const QModelIndex& index);
     void connectionEdited();
     void testConnection();
+    void setFileName();
+
+    void setFileMode();
+    void setNetworkMode();
+    void setModeForDriver(int index);
 
 private:
     Ui_Connections *ui;

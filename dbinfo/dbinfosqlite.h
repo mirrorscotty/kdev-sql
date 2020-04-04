@@ -16,43 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SQL_DBINFOBASE_H
-#define SQL_DBINFOBASE_H
+#ifndef DBINFOSQLITE_H
+#define DBINFOSQLITE_H
 
-#include <QVector>
-#include <QSqlField>
-#include <QSqlIndex>
-#include <QSqlDatabase>
+#include "dbinfo/dbinfobase.h"
 
 namespace Sql
 {
-
-QSqlField findColumnInList(QString, QVector<QSqlField>);
 /**
  * @todo write docs
  */
-class DbInfoBase
+class DbInfoSqlite : public DbInfoBase
 {
 public:
-    /**
-     * Default constructor
-     */
-    DbInfoBase(QSqlDatabase *database);
-
-    /**
-     * Destructor
-     */
-    virtual ~DbInfoBase();
-
-    virtual QVector<QSqlIndex> getIndexes(QString tableName);
-    virtual QVector<QSqlField> getColumns(QString tableName);
-    virtual QStringList getTables(QSql::TableType tableType);
-
-protected:
-    QSqlDatabase *db;
-
+    DbInfoSqlite(QSqlDatabase *database);
+    QVector<QSqlIndex> getIndexes(QString tableName) override;
 };
-
 }
 
-#endif // DBINFOBASE_H
+#endif // DBINFOSQLITE_H

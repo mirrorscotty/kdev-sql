@@ -24,17 +24,6 @@ namespace Sql
 
 #define SQL(...) #__VA_ARGS__
 
-QSqlField findColumnInList(QString columnName, QVector<QSqlField> allColumns)
-{
-    int i;
-    for(i=0; i<allColumns.count(); i++) {
-        if(columnName == allColumns[i].name()) {
-            return allColumns[i];
-        }
-    }
-    return QSqlField();
-}
-
 DbInfoPostgres::DbInfoPostgres(QSqlDatabase *database)
     : DbInfoBase(database)
 {

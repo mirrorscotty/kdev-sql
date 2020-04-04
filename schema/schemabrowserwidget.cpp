@@ -21,14 +21,6 @@ SchemaBrowserWidget::SchemaBrowserWidget(QWidget *parent)
     ui->connection->setModel(allConnections);
     connect(ui->connection, SIGNAL(currentIndexChanged(int)), this, SLOT(connectionChanged(int)));
     connectionChanged(ui->connection->currentIndex());
-
-    //Connection c;
-    //c.driver = "QPSQL";
-    //c.hostName = "localhost";
-    //c.userName = "alex";
-    //c.password = "alex";
-    //c.databaseName = "alex";
-    //setConnection(c);
 }
 
 SchemaBrowserWidget::~SchemaBrowserWidget()

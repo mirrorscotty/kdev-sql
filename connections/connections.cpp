@@ -25,6 +25,7 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QtCore>
+#include <QFileDialog>
 
 namespace Sql
 {
@@ -54,6 +55,7 @@ ProjectConfigPage::ProjectConfigPage(KDevelop::IPlugin *plugin,
     ui->testResult->setText("");
     ui->driver->insertItems(0, QSqlDatabase::drivers());
 
+    /*
     connect(ui->driver, SIGNAL(currentIndexChanged(int)),
             SLOT(connectionEdited()));
     connect(ui->hostName, SIGNAL(textEdited(QString)),
@@ -64,8 +66,53 @@ ProjectConfigPage::ProjectConfigPage(KDevelop::IPlugin *plugin,
             SLOT(connectionEdited()));
     connect(ui->password, SIGNAL(textEdited(QString)),
             SLOT(connectionEdited()));
+    */
+    connect(ui->testConnection, SIGNAL(clicked()), SLOT(connectionEdited()));
+    connect(ui->selectFile, SIGNAL(clicked()), SLOT(setFileName()));
+    connect(ui->driver, SIGNAL(currentIndexChanged(int)), SLOT(setModeForDriver(int)));
 
     reset();
+}
+
+void ProjectConfigPage::setFileName()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, i18n("Open Database"), "", i18n("Databases(*.db, *.sqlite3)"));
+    ui->database->setText(fileName);
+}
+
+void ProjectConfigPage::setFileMode()
+{
+    ui->usernameLabel->hide();
+    ui->userName->hide();
+    ui->userName->clear();
+    ui->passwordLabel->hide();
+    ui->password->hide();
+    ui->password->clear();
+    ui->hostnameLabel->hide();
+    ui->hostName->hide();
+    ui->hostName->clear();
+    ui->selectFile->show();
+}
+
+void ProjectConfigPage::setNetworkMode()
+{
+    ui->usernameLabel->show();
+    ui->userName->show();
+    ui->passwordLabel->show();
+    ui->password->show();
+    ui->hostnameLabel->show();
+    ui->hostName->show();
+    ui->selectFile->hide();
+}
+
+void ProjectConfigPage::setModeForDriver(int index)
+{
+    QString driver;
+    driver = ui->driver->itemText(index);
+    if(driver == "QSQLITE3" || driver == "QSQLITE")
+        setFileMode();
+    else
+        setNetworkMode();
 }
 
 ProjectConfigPage::~ProjectConfigPage()
@@ -84,8 +131,6 @@ void ProjectConfigPage::reset()
     ui->list->setCurrentIndex(conn->index(0, 0));
 }
 
-
-
 QIcon ProjectConfigPage::icon() const
 {
     return QIcon::fromTheme(QStringLiteral("server-database"));
@@ -102,6 +147,7 @@ void ProjectConfigPage::currentRowChanged(const QModelIndex& index)
     ui->driver->blockSignals(true);
     ui->driver->setCurrentItem(c.driver);
     ui->driver->blockSignals(false);
+    setModeForDriver(ui->driver->currentIndex());
     ui->hostName->setText(c.hostName);
     ui->database->setText(c.databaseName);
     ui->userName->setText(c.userName);

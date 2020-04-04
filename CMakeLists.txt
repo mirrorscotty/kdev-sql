@@ -71,6 +71,7 @@ set(kdevsqllanguagesupport_SRCS
     schema/dbschemaitem.cpp
     dbinfo/dbinfobase.cpp
     dbinfo/dbinfopostgres.cpp
+    dbinfo/dbinfosqlite.cpp
 )
 
 ki18n_wrap_ui( kdevsqllanguagesupport_SRCS

@@ -1,3 +1,5 @@
+#ifndef SQL_CONNECTIONSALLPROJECTSMODEL_H
+#define SQL_CONNECTIONSALLPROJECTSMODEL_H
 #include <QAbstractListModel>
 
 namespace KDevelop
@@ -31,3 +33,5 @@ private:
 };
 
 }
+
+#endif //SQL_CONNECTIONSALLPROJECTSMODEL_H

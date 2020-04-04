@@ -19,6 +19,7 @@
 #include "dbschemamodel.h"
 #include "dbinfo/dbinfobase.h"
 #include "dbinfo/dbinfopostgres.h"
+#include "dbinfo/dbinfosqlite.h"
 
 #include <klocalizedstring.h>
 #include <QAbstractItemModel>
@@ -32,9 +33,14 @@ namespace Sql
 DbSchemaModel::DbSchemaModel(QSqlDatabase *database, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    //dbInfo = new DbInfoBase(database);
-    dbInfo = new DbInfoPostgres(database);
-    //db = database;
+    qDebug() << "Driver:" << database->driverName();
+    if(database->driverName() == QStringLiteral("QPSQL"))
+        dbInfo = new DbInfoPostgres(database);
+    else if(database->driverName() == QStringLiteral("QSQLITE"))
+        dbInfo = new DbInfoSqlite(database);
+    else
+        dbInfo = new DbInfoBase(database);
+
     rootItem = nullptr;
     refreshModelData();
 }
