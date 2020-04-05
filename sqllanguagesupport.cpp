@@ -39,6 +39,7 @@
 
 #include "results/resulttablewidget.h"
 #include "schema/schemabrowserwidget.h"
+#include "connections/connectionsallprojectsmodel.h"
 //#include "version.h"
 
 /*
@@ -62,13 +63,14 @@ template<class T>
 class ToolFactory : public KDevelop::IToolViewFactory
 {
 public:
-  ToolFactory(const QString &id, Qt::DockWidgetArea defaultArea)
-  : m_id(id), m_defaultArea(defaultArea)
+  ToolFactory(const QString &id, Qt::DockWidgetArea defaultArea, QComboBox *selectConnection = nullptr)
+  : m_id(id), m_defaultArea(defaultArea), m_connection(selectConnection)
   {}
 
   virtual QWidget* create(QWidget *parent = 0) override
   {
-    return new T(parent);
+    T *toolView = new T(m_connection, parent);
+    return toolView;
   }
 
   virtual QString id() const override
@@ -86,9 +88,17 @@ public:
     return false;
   }
 
+  virtual QList<QAction *>toolBarActions(QWidget *viewWidget) const override
+  {
+    SqlToolViewBase *view = static_cast<SqlToolViewBase*>(viewWidget);
+    return view->toolbarActions();
+  }
+
 private:
   QString m_id;
   Qt::DockWidgetArea m_defaultArea;
+  QComboBox *m_connection;
+  QList<QAction*> m_toolbarActions;
 };
 
 #define RESULTS_VIEW_NAME i18n("SQL Query")
@@ -101,33 +111,29 @@ LanguageSupport::LanguageSupport(QObject* parent, const QVariantList& /*args*/)
     setComponentName("kdevsqlsupport", "SQL Support");
     setXMLFile("kdevsqlui.rc");
 
-    m_self = this;
-
-    m_resultTableFactory = new ToolFactory<ResultTableWidget>(
-        "org.kdevelop.sql.ResultTable", Qt::BottomDockWidgetArea);
-    core()->uiController()->addToolView(RESULTS_VIEW_NAME ,m_resultTableFactory);
-    m_schemaBrowserFactory = new ToolFactory<SchemaBrowserWidget>(
-        "org.kdevelop.sql.SchemaBrowser", Qt::RightDockWidgetArea);
-    core()->uiController()->addToolView(SCHEMA_VIEW_NAME, m_schemaBrowserFactory);
-
-    //QWidget* w = core()->uiController()->findToolView(i18n("SQL Query"), m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
-    //Q_ASSERT(w);
-    //ResultTableWidget *resultWidget = dynamic_cast<ResultTableWidget*>(w);
-    //Q_ASSERT(resultWidget);
-
-    //QWidget *sw = core()->uiController()->findToolView("Schema Browser", m_resultTableFactory, KDevelop::IUiController::CreateAndRaise);
-    //Q_ASSERT(sw);
-    //SchemaBrowserWidget *schemaWidget = dynamic_cast<SchemaBrowserWidget*>(sw);
-    //Q_ASSERT(schemaWidget);
-
-    //connect(resultWidget, SIGNAL(newConnection), schemaWidget, SLOT(setConnection));
-
+    // Buttons/widgets for the toolbar
     KActionCollection* ac = actionCollection();
 
     QAction * action = new QAction(QIcon::fromTheme("system-run"), i18n("Run SQL"), this);
     connect(action, SIGNAL(triggered(bool)), SLOT(runSql()));
     ac->addAction("run_sql", action);
     ac->setDefaultShortcut(action, Qt::CTRL + Qt::Key_E);
+
+    databaseComboBox = new QComboBox();
+    databaseComboBox->setModel(new ConnectionsAllProjectsModel(this));
+    databaseComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    QWidgetAction *selectConnection = new QWidgetAction(this);
+    selectConnection->setDefaultWidget(databaseComboBox);
+    ac->addAction("select_connection", selectConnection);
+
+    // Set up the tool views
+    m_self = this;
+    m_resultTableFactory = new ToolFactory<ResultTableWidget>(
+        "org.kdevelop.sql.ResultTable", Qt::BottomDockWidgetArea, databaseComboBox);
+    core()->uiController()->addToolView(RESULTS_VIEW_NAME ,m_resultTableFactory);
+    m_schemaBrowserFactory = new ToolFactory<SchemaBrowserWidget>(
+        "org.kdevelop.sql.SchemaBrowser", Qt::RightDockWidgetArea, databaseComboBox);
+    core()->uiController()->addToolView(SCHEMA_VIEW_NAME, m_schemaBrowserFactory);
 }
 
 QString LanguageSupport::name() const

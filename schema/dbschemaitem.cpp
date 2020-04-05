@@ -20,6 +20,7 @@
 #include <QVariant>
 #include <QMetaType>
 #include <klocalizedstring.h>
+#include <QIcon>
 
 namespace Sql
 {
@@ -30,7 +31,7 @@ DbSchemaItem::DbSchemaItem() : parent(nullptr)
     dataType = i18n("Type");
 }
 
-DbSchemaItem::DbSchemaItem ( QString tableName, QSql::TableType type, DbSchemaItem* parent)
+DbSchemaItem::DbSchemaItem (QString tableName, QSql::TableType type, DbSchemaItem* parent)
     : parent(parent)
 {
     name = tableName;
@@ -49,14 +50,14 @@ DbSchemaItem::DbSchemaItem ( QString tableName, QSql::TableType type, DbSchemaIt
     }
 }
 
-DbSchemaItem::DbSchemaItem ( QString folderName, Sql::DbSchemaItem* parent )
+DbSchemaItem::DbSchemaItem (QString folderName, Sql::DbSchemaItem* parent)
     : parent(parent)
 {
     name = folderName;
     dataType = QString::Null();
 }
 
-DbSchemaItem::DbSchemaItem ( QSqlField column, DbSchemaItem* parent )
+DbSchemaItem::DbSchemaItem(QSqlField column, DbSchemaItem* parent)
     : parent(parent)
 {
     int typeId;
@@ -70,12 +71,12 @@ DbSchemaItem::~DbSchemaItem()
     qDeleteAll(children);
 }
 
-void DbSchemaItem::appendChild ( DbSchemaItem* child )
+void DbSchemaItem::appendChild(DbSchemaItem* child)
 {
     children.append(child);
 }
 
-int DbSchemaItem::childCount()
+int DbSchemaItem::childCount() const
 {
     return children.count();
 }
@@ -93,7 +94,7 @@ int DbSchemaItem::columnCount() const
     return 2;
 }
 
-QVariant DbSchemaItem::data ( int column )
+QVariant DbSchemaItem::data(int column) const
 {
     switch (column) {
         case 0:
@@ -105,7 +106,7 @@ QVariant DbSchemaItem::data ( int column )
     }
 }
 
-int DbSchemaItem::row()
+int DbSchemaItem::row() const
 {
     if (parent) {
         return parent->children.indexOf(const_cast<DbSchemaItem*>(this));
@@ -114,7 +115,15 @@ int DbSchemaItem::row()
     }
 }
 
-DbSchemaItem *DbSchemaItem::parentItem()
+QIcon DbSchemaItem::icon ( int column ) const
+{
+    if(column == 0)
+        return QIcon::fromTheme("folder");
+    return QIcon();
+}
+
+
+DbSchemaItem *DbSchemaItem::parentItem() const
 {
     return parent;
 }

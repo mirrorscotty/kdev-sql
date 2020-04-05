@@ -26,6 +26,7 @@
 #include <QSqlRecord>
 #include <QSqlIndex>
 #include <QDebug>
+#include <QIcon>
 
 namespace Sql
 {
@@ -122,14 +123,16 @@ QVariant DbSchemaModel::data ( const QModelIndex& index, int role ) const
         return QModelIndex();
     }
 
-    if(role != Qt::DisplayRole) {
-        return QVariant();
-    }
-
     DbSchemaItem *item;
     item = static_cast<DbSchemaItem*>(index.internalPointer());
+    if(role == Qt::DisplayRole) {
+        return item->data(index.column());
+    }
+    if(role == Qt::DecorationRole) {
+        return item->icon(index.column());
+    }
 
-    return item->data(index.column());
+    return QVariant();
 }
 
 QVariant DbSchemaModel::headerData ( int section, Qt::Orientation orientation, int role ) const

@@ -20,8 +20,10 @@
 #define SQL_RESULTTABLEWIDGET_H
 
 #include <QWidget>
+#include <QComboBox>
 #include <QSqlDatabase>
 #include "connections/connectionsmodel.h"
+#include "sqltoolviewbase.h"
 
 namespace Ui {
     class Results;
@@ -35,11 +37,11 @@ namespace Sql {
 class ConnectionsAllProjectsModel;
 class QueryWorker;
 
-class ResultTableWidget : public QWidget
+class ResultTableWidget : public SqlToolViewBase
 {
     Q_OBJECT
 public:
-    ResultTableWidget(QWidget* parent = 0);
+    ResultTableWidget(QComboBox *connection, QWidget* parent = 0);
     ~ResultTableWidget();
 
     void runSql(QString sql);
@@ -48,15 +50,13 @@ signals:
     void newConnection(Connection c);
 
 private slots:
-    void currentConnectionChanged(int index);
-    void connectionChanged();
+    virtual void currentConnectionChanged(int index) override;
     void results(QSqlQuery query, int elapsedTime);
     void error(const QString &errorText);
 
 private:
     Ui::Results *m_ui;
     QSqlQueryModel *m_model;
-    ConnectionsAllProjectsModel* m_connectionsModel;
     QueryWorker* m_queryWorker;
 };
 

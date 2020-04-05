@@ -22,6 +22,7 @@
 #include <kdevplatform/interfaces/iplugin.h>
 #include <kdevplatform/language/interfaces/ilanguagesupport.h>
 #include <project/projectconfigpage.h>
+#include <QComboBox>
 
 namespace Sql
 {
@@ -58,6 +59,7 @@ private:
     static LanguageSupport* m_self;
     ToolFactory<ResultTableWidget>* m_resultTableFactory;
     ToolFactory<SchemaBrowserWidget>* m_schemaBrowserFactory;
+    QComboBox *databaseComboBox;
 };
 
 }

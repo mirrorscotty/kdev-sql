@@ -1,5 +1,6 @@
 #include "connections/connectionsmodel.h"
 #include "connections/connectionsallprojectsmodel.h"
+#include "sqltoolviewbase.h"
 #include "ui_schemabrowser.h"
 #include "schemabrowserwidget.h"
 
@@ -12,15 +13,15 @@
 namespace Sql
 {
 
-SchemaBrowserWidget::SchemaBrowserWidget(QWidget *parent)
-    : QWidget(parent), ui(new Ui::SchemaBrowser)
+SchemaBrowserWidget::SchemaBrowserWidget(QComboBox *connection, QWidget *parent)
+    : SqlToolViewBase(connection, parent), ui(new Ui::SchemaBrowser)
 {
     ui->setupUi(this);
     schemaModel = nullptr;
-    allConnections = new ConnectionsAllProjectsModel(this);
-    ui->connection->setModel(allConnections);
-    connect(ui->connection, SIGNAL(currentIndexChanged(int)), this, SLOT(connectionChanged(int)));
-    connectionChanged(ui->connection->currentIndex());
+
+    currentConnectionChanged(m_connection->currentIndex());
+    refreshButton = new QAction(QIcon::fromTheme("view-refresh"), i18n("Refresh"), this);
+    m_toolbarActions.append(refreshButton);
 }
 
 SchemaBrowserWidget::~SchemaBrowserWidget()
@@ -32,7 +33,7 @@ SchemaBrowserWidget::~SchemaBrowserWidget()
     if(db.isOpen()) {
         db.close();
     }
-    delete allConnections;
+    delete refreshButton;
 }
 
 void SchemaBrowserWidget::setConnection(Connection c)
@@ -57,18 +58,24 @@ void SchemaBrowserWidget::setConnection(Connection c)
 
     if(!schemaModel) {
         schemaModel = new DbSchemaModel(&db);
-        connect(ui->refreshButton, SIGNAL(clicked()), schemaModel, SLOT(refreshModelData()));
+        connect(refreshButton, SIGNAL(triggered(bool)), schemaModel, SLOT(refreshModelData()));
         ui->schemaView->setModel(schemaModel);
     }
     schemaModel->refreshModelData();
 }
 
-void SchemaBrowserWidget::connectionChanged(int index)
+void SchemaBrowserWidget::currentConnectionChanged(int index)
 {
     if(index < 0) {
         return;
     }
-    setConnection(allConnections->connection(index));
+    setConnection(m_connectionsModel->connection(index));
+    qDebug() << "Refreshed";
+}
+
+QList<QAction*> SchemaBrowserWidget::toolbarActions() const
+{
+    return m_toolbarActions;
 }
 
 }

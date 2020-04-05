@@ -22,6 +22,7 @@
 #include <QString>
 #include <QSqlField>
 #include <QVector>
+#include <QIcon>
 
 namespace Sql
 {
@@ -70,7 +71,7 @@ public:
      * Get the number of children for this item
      * @returns Count of children
      */
-    int childCount();
+    int childCount() const;
     /**
      * Get the number of columns for this item
      * @returns Count of columns
@@ -81,17 +82,20 @@ public:
      * @param column Column number
      * @returns Value
      */
-    QVariant data(int column);
+    QVariant data(int column) const;
+
+    /* TODO: Write docs! */
+    QIcon icon(int column) const;
     /**
      * Get the row number of this item
      * @returns Row number
      */
-    int row();
+    int row() const;
     /**
      * Get this item's parent
      * @returns Pointer to parent item
      */
-    DbSchemaItem *parentItem();
+    DbSchemaItem *parentItem() const;
 
     /**
      * Destructor

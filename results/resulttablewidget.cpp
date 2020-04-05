@@ -43,18 +43,13 @@
 
 namespace Sql {
 
-ResultTableWidget::ResultTableWidget(QWidget* parent)
-    : QWidget(parent), m_queryWorker(0)
+ResultTableWidget::ResultTableWidget(QComboBox *connection, QWidget* parent)
+    : SqlToolViewBase(connection, parent), m_queryWorker(0)
 {
     m_ui = new Ui::Results;
     m_ui->setupUi(this);
     m_model =  new QSqlQueryModel(this);
     m_ui->table->setModel(m_model);
-    m_connectionsModel = new ConnectionsAllProjectsModel(this);
-    m_ui->connection->setModel(m_connectionsModel);
-    connect(m_ui->connection, SIGNAL(currentIndexChanged(int)), SLOT(currentConnectionChanged(int)));
-    connect(m_connectionsModel, SIGNAL(modelReset()), SLOT(connectionChanged()));
-    connect(m_connectionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(connectionChanged()));
 
     setWindowIcon(QIcon::fromTheme("server-database"));
 }
@@ -67,7 +62,6 @@ ResultTableWidget::~ResultTableWidget()
         m_queryWorker->wait();
         delete m_queryWorker;
     }
-    delete m_connectionsModel;
     delete m_model;
 }
 
@@ -103,15 +97,9 @@ void ResultTableWidget::currentConnectionChanged(int index)
     m_ui->stackedWidget->setCurrentWidget(m_ui->messagePage);
 }
 
-void ResultTableWidget::connectionChanged()
-{
-    currentConnectionChanged(m_ui->connection->currentIndex());
-}
-
-
 void ResultTableWidget::runSql(QString sql)
 {
-    if (!m_queryWorker) currentConnectionChanged(m_ui->connection->currentIndex());
+    if (!m_queryWorker) currentConnectionChanged(m_connection->currentIndex());
 
     m_ui->messageLabel->setText(i18n("Executing Query..."));
     m_ui->stackedWidget->setCurrentWidget(m_ui->messagePage);
