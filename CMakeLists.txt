@@ -69,6 +69,10 @@ set(kdevsqllanguagesupport_SRCS
     schema/schemabrowserwidget.cpp
     schema/dbschemamodel.cpp
     schema/dbschemaitem.cpp
+    schema/dbschemafolder.cpp
+    schema/dbschemaindex.cpp
+    schema/dbschematable.cpp
+    schema/dbschemacolumn.cpp
     dbinfo/dbinfobase.cpp
     dbinfo/dbinfopostgres.cpp
     dbinfo/dbinfosqlite.cpp

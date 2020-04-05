@@ -41,22 +41,6 @@ public:
     DbSchemaItem();
 
     /**
-     * Create an item from a table or view
-     * @param tableName Name of the table
-     * @param type What kind of database object this is
-     * @param parent Should be the root item
-     */
-    DbSchemaItem(QString tableName, QSql::TableType type, DbSchemaItem *parent = nullptr);
-    /**
-     * Create an item from a column
-     * @param column The column to use
-     * @param parent The item for the parent table
-     */
-    DbSchemaItem(QSqlField column, DbSchemaItem *parent = nullptr);
-
-    DbSchemaItem(QString folderName, DbSchemaItem *parent = nullptr);
-
-    /**
      * Add a child item to this node in the tree
      * @param child The item to add
      */
@@ -66,7 +50,7 @@ public:
      * @param row Row number
      * @returns Pointer to the child item
      */
-    DbSchemaItem *child(int row);
+    DbSchemaItem *child(int row) const;
     /**
      * Get the number of children for this item
      * @returns Count of children
@@ -82,10 +66,10 @@ public:
      * @param column Column number
      * @returns Value
      */
-    QVariant data(int column) const;
+    virtual QVariant data(int column) const;
 
     /* TODO: Write docs! */
-    QIcon icon(int column) const;
+    virtual QIcon icon(int column) const;
     /**
      * Get the row number of this item
      * @returns Row number
@@ -100,9 +84,9 @@ public:
     /**
      * Destructor
      */
-    ~DbSchemaItem();
+    virtual ~DbSchemaItem();
 
-private:
+protected:
     QString name;
     QString dataType;
 

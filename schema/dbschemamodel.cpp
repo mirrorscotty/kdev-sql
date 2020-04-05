@@ -17,6 +17,10 @@
  */
 
 #include "dbschemamodel.h"
+#include "dbschemafolder.h"
+#include "dbschemaindex.h"
+#include "dbschematable.h"
+#include "dbschemacolumn.h"
 #include "dbinfo/dbinfobase.h"
 #include "dbinfo/dbinfopostgres.h"
 #include "dbinfo/dbinfosqlite.h"
@@ -151,10 +155,10 @@ void DbSchemaModel::refreshModelData()
         delete rootItem;
     }
     rootItem = new DbSchemaItem();
-    DbSchemaItem *tablesFolder, *systemTablesFolder, *viewsFolder;
-    tablesFolder = new DbSchemaItem(i18n("Tables"), rootItem);
-    systemTablesFolder = new DbSchemaItem(i18n("System Tables"), tablesFolder);
-    viewsFolder = new DbSchemaItem(i18n("Views"), rootItem);
+    DbSchemaFolder *tablesFolder, *systemTablesFolder, *viewsFolder;
+    tablesFolder = new DbSchemaFolder(i18n("Tables"), rootItem);
+    systemTablesFolder = new DbSchemaFolder(i18n("System Tables"), tablesFolder);
+    viewsFolder = new DbSchemaFolder(i18n("Views"), rootItem);
     rootItem->appendChild(tablesFolder);
     tablesFolder->appendChild(systemTablesFolder);
     rootItem->appendChild(viewsFolder);
@@ -173,9 +177,9 @@ void DbSchemaModel::loadTablesFromDb(QSql::TableType tableType, DbSchemaItem *pa
     }
 
     QStringList tables = dbInfo->getTables(tableType);
-    DbSchemaItem *tableItem;
+    DbSchemaTable *tableItem;
     for(int i = 0; i < tables.count(); i++) {
-        tableItem = new DbSchemaItem(tables.at(i), tableType, parent);
+        tableItem = new DbSchemaTable(tables.at(i), tableType, parent);
         parent->appendChild(tableItem);
         loadColumnsForTable(tableItem);
         loadIndexesForTable(tableItem);
@@ -186,8 +190,9 @@ void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
 {
     QString tableName = tableItem->data(0).toString();
     QVector<QSqlField> allColumns;
-    DbSchemaItem *columnItem, *columnFolder;
-    columnFolder = new DbSchemaItem("Columns", tableItem);
+    DbSchemaColumn *columnItem;
+    DbSchemaFolder *columnFolder;
+    columnFolder = new DbSchemaFolder("Columns", tableItem);
     tableItem->appendChild(columnFolder);
 
     allColumns = dbInfo->getColumns(tableName);
@@ -195,7 +200,7 @@ void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
     QSqlField column;
     for(int i = 0; i < allColumns.count(); i++) {
         column = allColumns[i];
-        columnItem = new DbSchemaItem(column, columnFolder);
+        columnItem = new DbSchemaColumn(column, columnFolder);
         columnFolder->appendChild(columnItem);
     }
 }
@@ -209,8 +214,9 @@ void DbSchemaModel::loadIndexesForTable(DbSchemaItem *tableItem)
         return;
     }
 
-    DbSchemaItem *indexFolder, *indexItem, *columnItem;
-    indexFolder = new DbSchemaItem("Indexes", tableItem);
+    DbSchemaIndex *indexItem;
+    DbSchemaColumn *columnItem;
+    DbSchemaFolder *indexFolder = new DbSchemaFolder("Indexes", tableItem);
     tableItem->appendChild(indexFolder);
 
     QString indexName;
@@ -219,10 +225,10 @@ void DbSchemaModel::loadIndexesForTable(DbSchemaItem *tableItem)
         indexName = allIndexes[i].name();
         index = allIndexes[i];
 
-        indexItem = new DbSchemaItem(indexName, indexFolder);
+        indexItem = new DbSchemaIndex(indexName, indexFolder);
         indexFolder->appendChild(indexItem);
         for(int i = 0; i < index.count(); i++) {
-            columnItem = new DbSchemaItem(index.field(i), indexItem);
+            columnItem = new DbSchemaColumn(index.field(i), indexItem);
             indexItem->appendChild(columnItem);
         }
     }

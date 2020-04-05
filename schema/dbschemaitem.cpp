@@ -31,41 +31,6 @@ DbSchemaItem::DbSchemaItem() : parent(nullptr)
     dataType = i18n("Type");
 }
 
-DbSchemaItem::DbSchemaItem (QString tableName, QSql::TableType type, DbSchemaItem* parent)
-    : parent(parent)
-{
-    name = tableName;
-    switch (type) {
-        case QSql::TableType::Views:
-            dataType = i18n("View");
-            break;
-        case QSql::TableType::Tables:
-            dataType = i18n("Table");
-            break;
-        case QSql::TableType::SystemTables:
-            dataType = i18n("System Table");
-            break;
-        default:
-            dataType = i18n("Unknown");
-    }
-}
-
-DbSchemaItem::DbSchemaItem (QString folderName, Sql::DbSchemaItem* parent)
-    : parent(parent)
-{
-    name = folderName;
-    dataType = QString::Null();
-}
-
-DbSchemaItem::DbSchemaItem(QSqlField column, DbSchemaItem* parent)
-    : parent(parent)
-{
-    int typeId;
-    name = column.name();
-    typeId = column.type();
-    dataType = QString(QMetaType::typeName(typeId));
-}
-
 DbSchemaItem::~DbSchemaItem()
 {
     qDeleteAll(children);
@@ -81,7 +46,7 @@ int DbSchemaItem::childCount() const
     return children.count();
 }
 
-DbSchemaItem * DbSchemaItem::child ( int row )
+DbSchemaItem* DbSchemaItem::child ( int row ) const
 {
     if (row < 0 || row >= children.count()) {
         return nullptr;
@@ -115,10 +80,9 @@ int DbSchemaItem::row() const
     }
 }
 
-QIcon DbSchemaItem::icon ( int column ) const
+QIcon DbSchemaItem::icon(int column) const
 {
-    if(column == 0)
-        return QIcon::fromTheme("folder");
+    column = column == 0; // Warnings are annoying.
     return QIcon();
 }
 
