@@ -75,4 +75,23 @@ QVector<QSqlIndex> DbInfoBase::getIndexes(QString tableName)
     return allIndexes;
 }
 
+QVector<QSqlField> DbInfoBase::getPrimaryKeyColumns(QString tableName)
+{
+    QVector<QSqlField> pkColumns;
+    QSqlIndex primaryKey;
+    primaryKey = db->primaryIndex(tableName);
+    if(!primaryKey.name().isNull())
+        for(int i = 0; i<primaryKey.count(); i++)
+            pkColumns.append(primaryKey.field(i));
+    return pkColumns;
+}
+
+QVector<QSqlField> DbInfoBase::getForeignKeyColumns(QString tableName)
+{
+    QVector<QSqlField> fkColumns;
+    return fkColumns; // Not implemented
+}
+
+
+
 }

@@ -35,6 +35,14 @@
 namespace Sql
 {
 
+bool columnInVector(QVector<QSqlField> *columns, QString columnName)
+{
+    for(int i=0; i<columns->count(); i++)
+        if(columns->at(i).name() == columnName)
+            return true;
+    return false;
+}
+
 DbSchemaModel::DbSchemaModel(QSqlDatabase *database, QObject *parent)
     : QAbstractItemModel(parent)
 {
@@ -189,18 +197,26 @@ void DbSchemaModel::loadTablesFromDb(QSql::TableType tableType, DbSchemaItem *pa
 void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
 {
     QString tableName = tableItem->data(0).toString();
-    QVector<QSqlField> allColumns;
+    QVector<QSqlField> allColumns, pkColumns, fkColumns;
     DbSchemaColumn *columnItem;
     DbSchemaFolder *columnFolder;
     columnFolder = new DbSchemaFolder("Columns", tableItem);
     tableItem->appendChild(columnFolder);
 
     allColumns = dbInfo->getColumns(tableName);
+    pkColumns = dbInfo->getPrimaryKeyColumns(tableName);
+    fkColumns = dbInfo->getForeignKeyColumns(tableName);
 
     QSqlField column;
     for(int i = 0; i < allColumns.count(); i++) {
         column = allColumns[i];
         columnItem = new DbSchemaColumn(column, columnFolder);
+
+        if(pkColumns.lastIndexOf(column) != -1)
+            columnItem->setPrimaryKey(true);
+        if(fkColumns.lastIndexOf(column) != -1)
+            columnItem->setForeignKey(true);
+
         columnFolder->appendChild(columnItem);
     }
 }

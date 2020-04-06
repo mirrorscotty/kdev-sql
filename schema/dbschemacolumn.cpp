@@ -33,6 +33,8 @@ DbSchemaColumn::DbSchemaColumn(QSqlField column, DbSchemaItem* parentItem)
     name = column.name();
     typeId = column.type();
     parent = parentItem;
+    isPrimaryKey = false;
+    isForeignKey = false;
 }
 
 QVariant DbSchemaColumn::data(int column) const
@@ -47,9 +49,27 @@ QVariant DbSchemaColumn::data(int column) const
 
 QIcon DbSchemaColumn::icon (int column) const
 {
-    if(column == 0)
-        return QIcon::fromTheme("object-columns");
-    return QIcon();
+    // Only the first column gets an icon
+    if(column != 0)
+        return QIcon();
+
+    if(isPrimaryKey)
+        return QIcon::fromTheme("primarykey_constraint");
+    if(isForeignKey)
+        return QIcon::fromTheme("foreignkey_constraint");
+
+    // Default icon
+    return QIcon::fromTheme("object-columns");
+}
+
+void DbSchemaColumn::setForeignKey(bool value)
+{
+    isForeignKey = value;
+}
+
+void DbSchemaColumn::setPrimaryKey(bool value)
+{
+    isPrimaryKey = value;
 }
 
 }

@@ -46,6 +46,8 @@ public:
 
     virtual QVector<QSqlIndex> getIndexes(QString tableName);
     virtual QVector<QSqlField> getColumns(QString tableName);
+    virtual QVector<QSqlField> getPrimaryKeyColumns(QString tableName);
+    virtual QVector<QSqlField> getForeignKeyColumns(QString tableName);
     virtual QStringList getTables(QSql::TableType tableType);
 
 protected:

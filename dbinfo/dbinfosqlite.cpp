@@ -64,4 +64,40 @@ QVector<QSqlIndex> DbInfoSqlite::getIndexes(QString tableName)
     return allIndexes;
 }
 
+QVector<QSqlField> DbInfoSqlite::getPrimaryKeyColumns(QString tableName)
+{
+    QSqlQuery query(*db);
+    query.prepare("pragma table_info(" + tableName + ")");
+    query.exec();
+    QVector<QSqlField> pkColumns, allColumns;
+    allColumns = getColumns(tableName);
+    QSqlField column;
+    QString columnName;
+    while(query.next()) {
+        if(query.record().value(5).toInt() != 1)
+            continue;
+        columnName = query.record().value(1).toString();
+        column = findColumnInList(columnName, allColumns);
+        pkColumns.append(column);
+    }
+    return pkColumns;
+}
+
+QVector<QSqlField> DbInfoSqlite::getForeignKeyColumns(QString tableName)
+{
+    QSqlQuery query(*db);
+    query.prepare("pragma foreign_key_list(" + tableName + ")");
+    query.exec();
+    QVector<QSqlField> fkColumns, allColumns;
+    allColumns = getColumns(tableName);
+    QSqlField column;
+    QString columnName;
+    while(query.next()) {
+        columnName = query.record().value(3).toString();
+        column = findColumnInList(columnName, allColumns);
+        fkColumns.append(column);
+    }
+    return fkColumns;
+}
+
 }

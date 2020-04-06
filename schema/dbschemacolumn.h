@@ -40,10 +40,14 @@ public:
     DbSchemaColumn(QSqlField column, DbSchemaItem *parent = nullptr);
     virtual QVariant data(int column) const override;
     virtual QIcon icon(int column) const override;
+    void setPrimaryKey(bool value);
+    void setForeignKey(bool value);
 
 protected:
     QSql::TableType tableType;
     int typeId;
+    bool isPrimaryKey;
+    bool isForeignKey;
 };
 
 }
