@@ -32,6 +32,8 @@ class DbInfoPostgres : public DbInfoBase
 public:
     DbInfoPostgres(QSqlDatabase *database);
     QVector<QSqlIndex> getIndexes ( QString tableName ) override;
+    QVector<QSqlField> getPrimaryKeyColumns(QString tableName) override;
+    QVector<QSqlField> getForeignKeyColumns(QString tableName) override;
 };
 
 }
