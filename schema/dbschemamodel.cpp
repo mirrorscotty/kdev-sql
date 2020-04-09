@@ -186,15 +186,16 @@ void DbSchemaModel::loadTablesFromDb(QSql::TableType tableType, DbSchemaItem *pa
 
     QStringList tables = dbInfo->getTables(tableType);
     DbSchemaTable *tableItem;
+    QVector<QSqlField> allColumns;
     for(int i = 0; i < tables.count(); i++) {
         tableItem = new DbSchemaTable(tables.at(i), tableType, parent);
         parent->appendChild(tableItem);
-        loadColumnsForTable(tableItem);
-        loadIndexesForTable(tableItem);
+        allColumns = loadColumnsForTable(tableItem);
+        loadIndexesForTable(tableItem, allColumns);
     }
 }
 
-void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
+QVector<QSqlField> DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
 {
     QString tableName = tableItem->data(0).toString();
     QVector<QSqlField> allColumns, pkColumns, fkColumns;
@@ -204,8 +205,8 @@ void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
     tableItem->appendChild(columnFolder);
 
     allColumns = dbInfo->getColumns(tableName);
-    pkColumns = dbInfo->getPrimaryKeyColumns(tableName);
-    fkColumns = dbInfo->getForeignKeyColumns(tableName);
+    pkColumns = dbInfo->getPrimaryKeyColumns(tableName, allColumns);
+    fkColumns = dbInfo->getForeignKeyColumns(tableName, allColumns);
 
     QSqlField column;
     for(int i = 0; i < allColumns.count(); i++) {
@@ -219,13 +220,14 @@ void DbSchemaModel::loadColumnsForTable(DbSchemaItem *tableItem)
 
         columnFolder->appendChild(columnItem);
     }
+    return allColumns;
 }
 
-void DbSchemaModel::loadIndexesForTable(DbSchemaItem *tableItem)
+void DbSchemaModel::loadIndexesForTable(DbSchemaItem *tableItem, QVector<QSqlField> allColumns)
 {
     QString tableName = tableItem->data(0).toString();
     QVector<QSqlIndex> allIndexes;
-    allIndexes = dbInfo->getIndexes(tableName);
+    allIndexes = dbInfo->getIndexes(tableName, allColumns);
     if(allIndexes.isEmpty()) {
         return;
     }

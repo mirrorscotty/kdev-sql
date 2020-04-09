@@ -30,9 +30,9 @@ class DbInfoSqlite : public DbInfoBase
 {
 public:
     DbInfoSqlite(QSqlDatabase *database);
-    QVector<QSqlIndex> getIndexes(QString tableName) override;
-    QVector<QSqlField> getPrimaryKeyColumns(QString tableName) override;
-    QVector<QSqlField> getForeignKeyColumns(QString tableName) override;
+    QVector<QSqlIndex> getIndexes(QString tableName, QVector<QSqlField> allColumns = QVector<QSqlField>()) override;
+    QVector<QSqlField> getPrimaryKeyColumns(QString tableName, QVector<QSqlField> allColumns = QVector<QSqlField>()) override;
+    QVector<QSqlField> getForeignKeyColumns(QString tableName, QVector<QSqlField> allColumns = QVector<QSqlField>()) override;
 };
 }
 

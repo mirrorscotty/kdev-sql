@@ -18,6 +18,12 @@
 
 #include "dbinfobase.h"
 
+#ifdef __GNUC__
+#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#else
+#  define UNUSED(x) UNUSED_ ## x
+#endif
+
 namespace Sql
 {
 
@@ -64,7 +70,7 @@ QVector<QSqlField> DbInfoBase::getColumns(QString tableName)
     return allColumns;
 }
 
-QVector<QSqlIndex> DbInfoBase::getIndexes(QString tableName)
+QVector<QSqlIndex> DbInfoBase::getIndexes(QString tableName, QVector<QSqlField> UNUSED(allColumns))
 {
     QVector<QSqlIndex> allIndexes;
     QSqlIndex primaryKey;
@@ -75,7 +81,7 @@ QVector<QSqlIndex> DbInfoBase::getIndexes(QString tableName)
     return allIndexes;
 }
 
-QVector<QSqlField> DbInfoBase::getPrimaryKeyColumns(QString tableName)
+QVector<QSqlField> DbInfoBase::getPrimaryKeyColumns(QString tableName, QVector<QSqlField> UNUSED(allColumns))
 {
     QVector<QSqlField> pkColumns;
     QSqlIndex primaryKey;
@@ -86,10 +92,9 @@ QVector<QSqlField> DbInfoBase::getPrimaryKeyColumns(QString tableName)
     return pkColumns;
 }
 
-QVector<QSqlField> DbInfoBase::getForeignKeyColumns(QString tableName)
+QVector<QSqlField> DbInfoBase::getForeignKeyColumns(QString UNUSED(tableName), QVector<QSqlField> UNUSED(allColumns))
 {
-    QVector<QSqlField> fkColumns;
-    return fkColumns; // Not implemented
+    return QVector<QSqlField>(); // Not implemented
 }
 
 

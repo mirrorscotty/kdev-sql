@@ -110,8 +110,8 @@ private:
     DbSchemaItem *rootItem;
 
     void loadTablesFromDb(QSql::TableType type, DbSchemaItem *parent = nullptr);
-    void loadColumnsForTable(DbSchemaItem *tableItem);
-    void loadIndexesForTable(DbSchemaItem *tableItem);
+    QVector<QSqlField> loadColumnsForTable(DbSchemaItem *tableItem);
+    void loadIndexesForTable(DbSchemaItem *tableItem, QVector<QSqlField> allColumns);
 };
 
 }

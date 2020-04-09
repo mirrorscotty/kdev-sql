@@ -29,7 +29,7 @@ DbInfoPostgres::DbInfoPostgres(QSqlDatabase *database)
 {
 }
 
-QVector<QSqlIndex> DbInfoPostgres::getIndexes(QString tableName)
+QVector<QSqlIndex> DbInfoPostgres::getIndexes(QString tableName, QVector<QSqlField> allColumns)
 {
     QSqlQuery query(*db);
     //Source: https://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
@@ -62,10 +62,11 @@ QVector<QSqlIndex> DbInfoPostgres::getIndexes(QString tableName)
     QString indexName, columnString;
     QStringList columnList;
     QSqlIndex index;
-    QVector<QSqlField> tableColumns;
     QVector<QSqlIndex> allIndexes;
     QSqlField column;
-    tableColumns = this->getColumns(tableName);
+
+    if(allColumns.isEmpty())
+        allColumns = getColumns(tableName);
 
     while(query.next()) {
         indexName = query.value(1).toString();
@@ -75,7 +76,7 @@ QVector<QSqlIndex> DbInfoPostgres::getIndexes(QString tableName)
         index = QSqlIndex("asdf", indexName);
 
         for(int i = 0; i< columnList.count(); i++) {
-            column = findColumnInList(columnList[i], tableColumns);
+            column = findColumnInList(columnList[i], allColumns );
             index.append(column);
         }
         allIndexes.append(index);
@@ -83,7 +84,7 @@ QVector<QSqlIndex> DbInfoPostgres::getIndexes(QString tableName)
     return allIndexes;
 }
 
-QVector<QSqlField> DbInfoPostgres::getPrimaryKeyColumns(QString tableName)
+QVector<QSqlField> DbInfoPostgres::getPrimaryKeyColumns(QString tableName, QVector<QSqlField> allColumns)
 {
     QSqlQuery query(*db);
     query.prepare(SQL(
@@ -96,10 +97,13 @@ QVector<QSqlField> DbInfoPostgres::getPrimaryKeyColumns(QString tableName)
     ));
     query.bindValue(":table_name", tableName);
     query.exec();
-    QVector<QSqlField> allColumns = getColumns(tableName);
     QVector<QSqlField> pkColumns;
     QSqlField column;
     QString columnName;
+
+    if(allColumns.isEmpty())
+        allColumns = getColumns(tableName);
+
     while(query.next()) {
         columnName = query.record().value(0).toString();
         column = findColumnInList(columnName, allColumns);
@@ -108,7 +112,7 @@ QVector<QSqlField> DbInfoPostgres::getPrimaryKeyColumns(QString tableName)
     return pkColumns;
 }
 
-QVector<QSqlField> DbInfoPostgres::getForeignKeyColumns(QString tableName)
+QVector<QSqlField> DbInfoPostgres::getForeignKeyColumns(QString tableName, QVector<QSqlField> allColumns)
 {
     QSqlQuery query(*db);
     // Source: https://dataedo.com/kb/query/postgresql/list-of-foreign-keys-with-columns
@@ -139,10 +143,13 @@ QVector<QSqlField> DbInfoPostgres::getForeignKeyColumns(QString tableName)
     ));
     query.bindValue(":table_name", tableName);
     query.exec();
-    QVector<QSqlField> allColumns = getColumns(tableName);
     QVector<QSqlField> fkColumns;
     QSqlField column;
     QString columnName;
+
+    if(allColumns.isEmpty())
+        allColumns = getColumns(tableName);
+
     while(query.next()) {
         columnName = query.record().value(5).toString();
         column = findColumnInList(columnName, allColumns);

@@ -31,7 +31,7 @@ DbInfoSqlite::DbInfoSqlite(QSqlDatabase *database)
 {
 }
 
-QVector<QSqlIndex> DbInfoSqlite::getIndexes(QString tableName)
+QVector<QSqlIndex> DbInfoSqlite::getIndexes(QString tableName, QVector<QSqlField> allColumns)
 {
     QSqlQuery listQuery(*db), indexQuery(*db);
     listQuery.prepare("pragma index_list(" + tableName + ")");
@@ -39,11 +39,11 @@ QVector<QSqlIndex> DbInfoSqlite::getIndexes(QString tableName)
 
     QString indexName, columnString;
     QSqlIndex index;
-    QVector<QSqlField> tableColumns;
     QVector<QSqlIndex> allIndexes;
     QSqlField column;
 
-    tableColumns = this->getColumns(tableName);
+    if(allColumns.isEmpty())
+        allColumns = this->getColumns(tableName);
 
     while(listQuery.next()) {
         indexName = listQuery.value(1).toString();
@@ -55,7 +55,7 @@ QVector<QSqlIndex> DbInfoSqlite::getIndexes(QString tableName)
         while(indexQuery.next()) {
             columnString = indexQuery.value(2).toString();
             qDebug() << "Column" << columnString;
-            column = findColumnInList(columnString, tableColumns);
+            column = findColumnInList(columnString, allColumns );
             index.append(column);
         }
         indexQuery.finish();
@@ -64,15 +64,18 @@ QVector<QSqlIndex> DbInfoSqlite::getIndexes(QString tableName)
     return allIndexes;
 }
 
-QVector<QSqlField> DbInfoSqlite::getPrimaryKeyColumns(QString tableName)
+QVector<QSqlField> DbInfoSqlite::getPrimaryKeyColumns(QString tableName, QVector<QSqlField> allColumns)
 {
     QSqlQuery query(*db);
     query.prepare("pragma table_info(" + tableName + ")");
     query.exec();
-    QVector<QSqlField> pkColumns, allColumns;
-    allColumns = getColumns(tableName);
+    QVector<QSqlField> pkColumns;
     QSqlField column;
     QString columnName;
+
+    if(allColumns.isEmpty())
+        allColumns = getColumns(tableName);
+
     while(query.next()) {
         if(query.record().value(5).toInt() != 1)
             continue;
@@ -83,15 +86,18 @@ QVector<QSqlField> DbInfoSqlite::getPrimaryKeyColumns(QString tableName)
     return pkColumns;
 }
 
-QVector<QSqlField> DbInfoSqlite::getForeignKeyColumns(QString tableName)
+QVector<QSqlField> DbInfoSqlite::getForeignKeyColumns(QString tableName, QVector<QSqlField> allColumns)
 {
     QSqlQuery query(*db);
     query.prepare("pragma foreign_key_list(" + tableName + ")");
     query.exec();
-    QVector<QSqlField> fkColumns, allColumns;
-    allColumns = getColumns(tableName);
+    QVector<QSqlField> fkColumns;
     QSqlField column;
     QString columnName;
+
+    if(allColumns.isEmpty())
+        allColumns = getColumns(tableName);
+
     while(query.next()) {
         columnName = query.record().value(3).toString();
         column = findColumnInList(columnName, allColumns);
