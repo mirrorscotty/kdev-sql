@@ -78,7 +78,7 @@ public:
     return m_id;
   }
 
-  virtual Qt::DockWidgetArea defaultPosition() override
+  virtual Qt::DockWidgetArea defaultPosition() const
   {
     return m_defaultArea;
   }
