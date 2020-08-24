@@ -19,8 +19,8 @@ SchemaBrowserWidget::SchemaBrowserWidget(QComboBox *connection, QWidget *parent)
     ui->setupUi(this);
     schemaModel = nullptr;
 
-    currentConnectionChanged(m_connection->currentIndex());
     refreshButton = new QAction(QIcon::fromTheme("view-refresh"), i18n("Refresh"), this);
+    currentConnectionChanged(m_connection->currentIndex());
     m_toolbarActions.append(refreshButton);
 }
 
